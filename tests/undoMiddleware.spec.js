@@ -1,5 +1,6 @@
 import configureStore from "redux-mock-store";
-import { createUndoMiddleware, actions as undoActions } from "../src";
+import createUndoMiddleware from "../src/createUndoMiddleware";
+import { addUndoItem, undo, redo } from "../src/undoReduxModule";
 
 const initialState = {
   counter: 4,
@@ -36,10 +37,7 @@ describe("undoMiddleware", function() {
     const action = increment();
     store.dispatch(action);
 
-    expect(store.getActions()).toEqual([
-      action,
-      undoActions.addUndoItem(action)
-    ]);
+    expect(store.getActions()).toEqual([action, addUndoItem(action)]);
   });
 
   it("doesn't dispatch UNDO_HISTORY@ADD for un-supported actions", function() {
@@ -57,7 +55,7 @@ describe("undoMiddleware", function() {
 
     expect(store.getActions()).toEqual([
       action,
-      undoActions.addUndoItem(action, { val: initialState.counter })
+      addUndoItem(action, { val: initialState.counter })
     ]);
   });
 
@@ -68,7 +66,7 @@ describe("undoMiddleware", function() {
 
     expect(store.getActions()).toEqual([
       action,
-      undoActions.addUndoItem(action, { val: initialState.counter })
+      addUndoItem(action, { val: initialState.counter })
     ]);
   });
 
@@ -89,9 +87,9 @@ describe("undoMiddleware", function() {
           redoQueue: []
         }
       });
-      store.dispatch(undoActions.undo());
+      store.dispatch(undo());
 
-      expect(store.getActions()).toEqual([undoActions.undo(), decrement()]);
+      expect(store.getActions()).toEqual([undo(), decrement()]);
     });
   });
 
@@ -110,9 +108,9 @@ describe("undoMiddleware", function() {
           ]
         }
       });
-      store.dispatch(undoActions.redo());
+      store.dispatch(redo());
 
-      expect(store.getActions()).toEqual([undoActions.redo(), increment()]);
+      expect(store.getActions()).toEqual([redo(), increment()]);
     });
   });
 });

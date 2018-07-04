@@ -1,3 +1,5 @@
-export createUndoMiddleware from "./createUndoMiddleware";
-export undoHistoryReducer from "./reducer";
-export * as actions from "./actions";
+import createMiddleware from "./createUndoMiddleware";
+import reducer, { undo, redo, group } from "./undoReduxModule";
+export const actions = { undo, redo, group };
+export const undoReducer = reducer;
+export const createUndoMiddleware = createMiddleware;

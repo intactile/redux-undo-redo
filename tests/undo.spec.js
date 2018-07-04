@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import {
-  undoHistoryReducer as undoHistory,
+  undoReducer as undoHistory,
   createUndoMiddleware,
   actions
 } from "../src";
@@ -78,7 +78,7 @@ describe("(Redux Module) Undo", () => {
     checkCounter(0);
   });
 
-  // it('should let undo and redo group of actions', () => {
+  // it("should let undo and redo group of actions", () => {
   //   store.dispatch(increment());
   //   store.dispatch(
   //     group(dispatch => {

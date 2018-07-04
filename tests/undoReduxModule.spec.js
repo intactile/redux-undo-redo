@@ -1,5 +1,8 @@
-import { undoHistoryReducer, actions } from "../src";
-
+import undoHistoryReducer, {
+  addUndoItem,
+  undo,
+  redo
+} from "../src/undoReduxModule";
 describe("undoHistoryReducer", function() {
   describe("UNDO_HISTORY@ADD", function() {
     it("adds items to the undo queue in reverse order", function() {
@@ -22,8 +25,7 @@ describe("undoHistoryReducer", function() {
       };
 
       const result = undoableActions.reduce(
-        (state, action) =>
-          undoHistoryReducer(state, actions.addUndoItem(action)),
+        (state, action) => undoHistoryReducer(state, addUndoItem(action)),
         initialState
       );
 
@@ -47,10 +49,7 @@ describe("undoHistoryReducer", function() {
         redoQueue: []
       };
 
-      const result = undoHistoryReducer(
-        initialState,
-        actions.addUndoItem(action)
-      );
+      const result = undoHistoryReducer(initialState, addUndoItem(action));
 
       expect(result).toEqual(expectedState);
     });
@@ -74,7 +73,7 @@ describe("undoHistoryReducer", function() {
         redoQueue: [{ action: { type: "ACTION3" } }]
       };
 
-      const result = undoHistoryReducer(initialState, actions.undo());
+      const result = undoHistoryReducer(initialState, undo());
 
       expect(result).toEqual(expectedState);
     });
@@ -95,7 +94,7 @@ describe("undoHistoryReducer", function() {
         ]
       };
 
-      const result = undoHistoryReducer(initialState, actions.undo());
+      const result = undoHistoryReducer(initialState, undo());
 
       expect(result).toEqual(expectedState);
     });
@@ -109,7 +108,7 @@ describe("undoHistoryReducer", function() {
         ]
       };
 
-      const result = undoHistoryReducer(initialState, actions.undo());
+      const result = undoHistoryReducer(initialState, undo());
 
       expect(result).toEqual(initialState);
     });
@@ -133,7 +132,7 @@ describe("undoHistoryReducer", function() {
         ]
       };
 
-      const result = undoHistoryReducer(initialState, actions.redo());
+      const result = undoHistoryReducer(initialState, redo());
 
       expect(result).toEqual(expectedState);
     });
@@ -154,7 +153,7 @@ describe("undoHistoryReducer", function() {
         redoQueue: [{ action: { type: "ACTION2" } }]
       };
 
-      const result = undoHistoryReducer(initialState, actions.redo());
+      const result = undoHistoryReducer(initialState, redo());
 
       expect(result).toEqual(expectedState);
     });
@@ -168,7 +167,7 @@ describe("undoHistoryReducer", function() {
         redoQueue: []
       };
 
-      const result = undoHistoryReducer(initialState, actions.redo());
+      const result = undoHistoryReducer(initialState, redo());
 
       expect(result).toEqual(initialState);
     });

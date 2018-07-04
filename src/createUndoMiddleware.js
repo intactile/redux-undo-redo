@@ -1,6 +1,4 @@
-import { get, includes } from "lodash";
-import { addUndoItem } from "./actions";
-import { getUndoItem, getRedoItem } from "./selectors";
+import { addUndoItem, getUndoItem, getRedoItem } from "./undoReduxModule";
 
 export default function createUndoMiddleware({ revertingActions }) {
   let acting = false;
