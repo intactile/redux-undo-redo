@@ -75,69 +75,68 @@ describe("(Redux Module) Undo", () => {
     checkCounter(0);
   });
 
-  // it("should let undo and redo group of actions", () => {
-  //   store.dispatch(increment());
-  //   store.dispatch(
-  //     group(dispatch => {
-  //       dispatch(increment());
-  //       dispatch(increment());
-  //       dispatch(increment());
-  //     })
-  //   );
-  //   store.dispatch(increment());
-  //   store.dispatch(
-  //     group(dispatch => {
-  //       dispatch(increment());
-  //       dispatch(increment());
-  //     })
-  //   );
-  //   checkCounter(7);
+  it("should let undo and redo group of actions", () => {
+    store.dispatch(increment());
+    store.dispatch(
+      group(dispatch => {
+        dispatch(increment());
+        dispatch(increment());
+        dispatch(increment());
+      })
+    );
+    store.dispatch(increment());
+    store.dispatch(
+      group(dispatch => {
+        dispatch(increment());
+        dispatch(increment());
+      })
+    );
+    checkCounter(7);
+    store.dispatch(undo());
+    checkCounter(5);
+    store.dispatch(undo());
+    checkCounter(4);
+    store.dispatch(undo());
+    checkCounter(1);
+    store.dispatch(undo());
+    checkCounter(0);
+  });
 
-  //   store.dispatch(undo());
-  //   checkCounter(5);
-  //   store.dispatch(undo());
-  //   checkCounter(4);
-  //   store.dispatch(undo());
-  //   checkCounter(1);
-  //   store.dispatch(undo());
-  //   checkCounter(0);
-  // });
+  it("should let undo and redo nested group of actions", () => {
+    store.dispatch(increment());
+    store.dispatch(
+      group(dispatch => {
+        dispatch(increment());
+        dispatch(
+          group(dispatch2 => {
+            dispatch2(increment());
+            dispatch2(increment());
+          })
+        );
+        dispatch(increment());
+      })
+    );
+    checkCounter(5);
 
-  // it('should let undo and redo nested group of actions', () => {
-  //   store.dispatch(increment());
-  //   store.dispatch(
-  //     group(dispatch => {
-  //       dispatch(increment());
-  //       dispatch(
-  //         group(dispatch2 => {
-  //           dispatch2(increment());
-  //           dispatch2(increment());
-  //         })
-  //       );
-  //       dispatch(increment());
-  //     })
-  //   );
-  //   checkCounter(5);
+    store.dispatch(undo());
+    checkCounter(1);
 
-  //   store.dispatch(undo());
-  //   checkCounter(1);
+    store.dispatch(redo());
+    checkCounter(5);
+  });
 
-  //   store.dispatch(redo());
-  //   checkCounter(5);
-  // });
+  it("should not redo if another action have been done", () => {
+    store.dispatch(increment());
+    store.dispatch(increment());
+    store.dispatch(undo());
+    store.dispatch(undo());
+    checkCounter(0);
+    store.dispatch(increment());
+    checkCounter(1);
 
-  // it('should not redo if another action have been done', () => {
-  //   store.dispatch(increment());
-  //   store.dispatch(increment());
-  //   store.dispatch(undo());
-  //   store.dispatch(undo());
-  //   checkCounter(0);
-  //   store.dispatch(increment());
-  //   checkCounter(1);
-
-  //   store.dispatch(redo());
-  //   checkCounter(1);
-  //   store.dispatch(undo());
-  //   checkCounter(0);
-  // });
+    store.dispatch(redo());
+    checkCounter(1);
+    store.dispatch(undo());
+    checkCounter(0);
+  });
 });

@@ -1,6 +1,13 @@
 import configureStore from "redux-mock-store";
 import createUndoMiddleware from "../src/createUndoMiddleware";
-import { addUndoItem, undo, redo } from "../src/undoReduxModule";
+import {
+  addUndoItem,
+  undo,
+  redo,
+  group,
+  beginGroup,
+  endGroup
+} from "../src/undoReduxModule";
 import {
   setValue,
   increment,
@@ -9,8 +16,7 @@ import {
 } from "./counterReduxModule";
 
 const initialState = {
-  counter: 4,
-  viewState: true
+  counter: 4
 };
 
 const notUndoableAction = () => ({ type: "NOT_UNDOABLE" });
@@ -19,15 +25,8 @@ const undoMiddleware = createUndoMiddleware({
 });
 const mockStore = configureStore([undoMiddleware]);
 
-const undoMiddlewareWithoutViewState = createUndoMiddleware({
-  revertingActions
-});
-const mockStoreWithoutViewState = configureStore([
-  undoMiddlewareWithoutViewState
-]);
-
 describe("undoMiddleware", function() {
-  test("dispatches UNDO_HISTORY@ADD for supported actions", function() {
+  it("dispatches ADD for supported actions", function() {
     const store = mockStore(initialState);
     const action = increment();
     store.dispatch(action);
@@ -35,7 +34,7 @@ describe("undoMiddleware", function() {
     expect(store.getActions()).toEqual([action, addUndoItem(action)]);
   });
 
-  it("doesn't dispatch UNDO_HISTORY@ADD for un-supported actions", function() {
+  it("doesn't dispatch ADD for un-supported actions", function() {
     const store = mockStore(initialState);
     const action = notUndoableAction();
     store.dispatch(action);
@@ -43,7 +42,7 @@ describe("undoMiddleware", function() {
     expect(store.getActions()).toEqual([action]);
   });
 
-  it("dispatches UNDO_HISTORY@ADD for supported actions with args", function() {
+  it("dispatches ADD for supported actions with args", function() {
     const store = mockStore(initialState);
     const action = setValue(7);
     store.dispatch(action);
@@ -53,29 +52,27 @@ describe("undoMiddleware", function() {
       addUndoItem(action, { val: initialState.counter })
     ]);
   });
-
-  it("dispatches UNDO_HISTORY@ADD with view states", function() {
+  it("dispatches BEGIN_GROUP AND END_GROUP for GROUP actions", function() {
     const store = mockStore(initialState);
-    const action = setValue(7);
-    store.dispatch(action);
-
+    const action = increment();
+    const groupedAction = group(action);
+    store.dispatch(groupedAction);
     expect(store.getActions()).toEqual([
+      groupedAction,
+      beginGroup(),
       action,
-      addUndoItem(action, { val: initialState.counter })
+      endGroup()
     ]);
   });
 
   describe("UNDO_HISTORY@UNDO", function() {
     it("dispatches the reverting action", function() {
-      const store = mockStoreWithoutViewState({
+      const store = mockStore({
         counter: 4,
-        viewState: true,
         undoHistory: {
           undoQueue: [
             {
               action: increment(),
-              beforeState: undefined,
-              afterState: undefined,
               args: undefined
             }
           ],
@@ -90,9 +87,8 @@ describe("undoMiddleware", function() {
 
   describe("UNDO_HISTORY@REDO", function() {
     it("dispatches the original action", function() {
-      const store = mockStoreWithoutViewState({
+      const store = mockStore({
         counter: 4,
-        viewState: true,
         undoHistory: {
           undoQueue: [],
           redoQueue: [

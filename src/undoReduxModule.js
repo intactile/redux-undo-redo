@@ -1,13 +1,11 @@
-import { omitBy, isNil } from "lodash";
-
 // ------------------------------------
 // Constants
 // ------------------------------------
 export const GROUP = "UNDO_HISTORY@GROUP";
 export const UNDO = "UNDO_HISTORY@UNDO";
 export const REDO = "UNDO_HISTORY@REDO";
-// export const BEGIN_UNDO_GROUP = 'UNDO_HISTORY@BEGIN_UNDO_GROUP';
-// export const END_UNDO_GROUP = 'UNDO_HISTORY@END_UNDO_GROUP';
+export const BEGIN_GROUP = "UNDO_HISTORY@BEGIN_GROUP";
+export const END_GROUP = "UNDO_HISTORY@END_GROUP";
 const ADD_UNDO_ITEM = "UNDO_HISTORY@ADD";
 const CLEAR_HISTORY = "UNDO_HISTORY@CLEAR";
 const UNDO_GROUP = "UNDO_HISTORY@UNDO_GROUP";
@@ -16,13 +14,8 @@ const REDO_GROUP = "UNDO_HISTORY@REDO_GROUP";
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export const getUndoItem = state => state.undoHistory.undoQueue[0];
-export const getRedoItem = state => state.undoHistory.redoQueue[0];
-
-function getGroupSize(state) {
-  const { groups, cursor } = state.undoGroup;
-  return groups[groups.length - cursor];
-}
+export const getUndoItems = state => state.undoHistory.undoQueue[0];
+export const getRedoItems = state => state.undoHistory.redoQueue[0];
 
 // ------------------------------------
 // Actions
@@ -33,6 +26,14 @@ export function undo() {
 
 export function redo() {
   return { type: REDO };
+}
+
+export function beginGroup() {
+  return { type: BEGIN_GROUP };
+}
+
+export function endGroup() {
+  return { type: END_GROUP };
 }
 
 export function addUndoItem(action, args) {
@@ -52,7 +53,7 @@ export function clear() {
 }
 export function group(action) {
   return {
-    type: GROUP_UNDO,
+    type: GROUP,
     payload: action
   };
 }
@@ -63,7 +64,8 @@ export function group(action) {
 
 const initialState = {
   undoQueue: [],
-  redoQueue: []
+  redoQueue: [],
+  groupLevel: 0
 };
 
 export default function undoHistoryReducer(state = initialState, action) {
@@ -71,29 +73,62 @@ export default function undoHistoryReducer(state = initialState, action) {
   const { undoQueue, redoQueue } = state;
 
   switch (type) {
-    case "UNDO_HISTORY@UNDO": {
+    case UNDO: {
       return undoQueue.length === 0
         ? state
         : {
+            ...state,
             undoQueue: undoQueue.slice(1),
             redoQueue: [undoQueue[0], ...redoQueue]
           };
     }
-    case "UNDO_HISTORY@REDO": {
+    case REDO: {
       return redoQueue.length === 0
         ? state
         : {
+            ...state,
             undoQueue: [redoQueue[0], ...undoQueue],
             redoQueue: redoQueue.slice(1)
           };
     }
-    case "UNDO_HISTORY@ADD": {
+    case ADD_UNDO_ITEM: {
+      if (state.groupLevel > 0) {
+        if (state.groupCreated) {
+          const group = [undoItem, ...state.undoQueue[0]];
+          return {
+            ...state,
+            undoQueue: [group, ...state.undoQueue.slice(1)],
+            redoQueue: []
+          };
+        } else {
+          return {
+            ...state,
+            undoQueue: [[undoItem], ...undoQueue],
+            redoQueue: [],
+            groupCreated: true
+          };
+        }
+      }
       return {
-        undoQueue: [omitBy(undoItem, isNil), ...undoQueue],
+        ...state,
+        undoQueue: [[undoItem], ...undoQueue],
         redoQueue: []
       };
     }
-    case "UNDO_HISTORY@CLEAR":
+    case BEGIN_GROUP: {
+      return {
+        ...state,
+        groupLevel: state.groupLevel + 1,
+        groupCreated: state.groupLevel > 0
+      };
+    }
+    case END_GROUP: {
+      return {
+        ...state,
+        groupLevel: state.groupLevel - 1
+      };
+    }
+    case CLEAR_HISTORY:
       return initialState;
     default:
       return state;

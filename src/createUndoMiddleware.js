@@ -1,4 +1,13 @@
-import { addUndoItem, getUndoItem, getRedoItem } from "./undoReduxModule";
+import {
+  UNDO,
+  REDO,
+  GROUP,
+  beginGroup,
+  endGroup,
+  addUndoItem,
+  getUndoItems,
+  getRedoItems
+} from "./undoReduxModule";
 
 export default function createUndoMiddleware({ revertingActions }) {
   let acting = false;
@@ -8,26 +17,37 @@ export default function createUndoMiddleware({ revertingActions }) {
     const ret = next(action);
 
     switch (action.type) {
-      case "UNDO_HISTORY@UNDO":
+      case UNDO:
         {
-          const undoItem = getUndoItem(state);
-          if (undoItem) {
+          const undoItems = getUndoItems(state);
+          if (undoItems) {
             acting = true;
-            dispatch(getUndoAction(undoItem));
+            undoItems.forEach(undoItem => {
+              dispatch(getUndoAction(undoItem));
+            });
             acting = false;
           }
         }
         break;
-      case "UNDO_HISTORY@REDO":
+      case REDO:
         {
-          const redoItem = getRedoItem(state);
-          if (redoItem) {
+          const redoItems = getRedoItems(state);
+          if (redoItems) {
             acting = true;
-            dispatch(redoItem.action);
+            redoItems.forEach(redoItem => {
+              dispatch(redoItem.action);
+            });
             acting = false;
           }
         }
         break;
+      case GROUP: {
+        const groupedAction = action.payload;
+        next(beginGroup());
+        const result = next(groupedAction);
+        next(endGroup());
+        return result;
+      }
       default:
         if (!acting && revertingActions[action.type]) {
           dispatch(addUndoItem(action, getUndoArgs(state, action)));
