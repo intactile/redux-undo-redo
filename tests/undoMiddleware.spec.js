@@ -71,10 +71,12 @@ describe("undoMiddleware", function() {
         counter: 4,
         undoHistory: {
           undoQueue: [
-            {
-              action: increment(),
-              args: undefined
-            }
+            [
+              {
+                action: increment(),
+                args: undefined
+              }
+            ]
           ],
           redoQueue: []
         }
@@ -92,10 +94,12 @@ describe("undoMiddleware", function() {
         undoHistory: {
           undoQueue: [],
           redoQueue: [
-            {
-              action: increment(),
-              args: undefined
-            }
+            [
+              {
+                action: increment(),
+                args: undefined
+              }
+            ]
           ]
         }
       });
