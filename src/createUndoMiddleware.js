@@ -34,7 +34,7 @@ export default function createUndoMiddleware({ revertingActions }) {
           const redoItems = getRedoItems(state);
           if (redoItems) {
             acting = true;
-            redoItems.forEach(redoItem => {
+            redoItems.reverse().forEach(redoItem => {
               dispatch(redoItem.action);
             });
             acting = false;

@@ -5,7 +5,12 @@ import {
   createUndoMiddleware,
   actions
 } from "../src";
-import counter, { increment, revertingActions } from "./counterReduxModule";
+import counter, {
+  increment,
+  setValue,
+  multiplyValue,
+  revertingActions
+} from "./counterReduxModule";
 
 describe("(Redux Module) Undo", () => {
   const { undo, redo, group, clearHistory } = actions;
@@ -160,5 +165,44 @@ describe("(Redux Module) Undo", () => {
     checkCounter(2);
     store.dispatch(clearHistory());
     undoThenCheckCounter(2);
+  });
+
+  it("should undo/redo in the correct order", () => {
+    store.dispatch(setValue(10));
+    store.dispatch(setValue(5));
+    store.dispatch(setValue(1));
+    checkCounter(1);
+    // console.log(JSON.stringify(store.getState().undoHistory, null, 2));
+    undoThenCheckCounter(5);
+    undoThenCheckCounter(10);
+    undoThenCheckCounter(0);
+    redoThenCheckCounter(10);
+    redoThenCheckCounter(5);
+    redoThenCheckCounter(1);
+  });
+
+  it("should undo/redo groups in the correct order", () => {
+    store.dispatch(
+      group(dispatch => {
+        dispatch(setValue(3));
+        dispatch(increment());
+        dispatch(multiplyValue(3));
+      })
+    );
+    checkCounter(12);
+    store.dispatch(
+      group(dispatch => {
+        dispatch(increment());
+        dispatch(increment());
+        dispatch(increment());
+        dispatch(multiplyValue(2));
+      })
+    );
+    checkCounter(30);
+
+    undoThenCheckCounter(12);
+    undoThenCheckCounter(0);
+    redoThenCheckCounter(12);
+    redoThenCheckCounter(30);
   });
 });
