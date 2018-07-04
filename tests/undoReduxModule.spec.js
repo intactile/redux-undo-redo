@@ -17,9 +17,9 @@ describe("undoHistoryReducer", function() {
       ];
       const expectedState = {
         undoQueue: [
-          { action: { type: "ACTION3" } },
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION1" } }
+          [{ action: { type: "ACTION3" } }],
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION1" } }]
         ],
         redoQueue: []
       };
@@ -34,17 +34,17 @@ describe("undoHistoryReducer", function() {
 
     it("resets the redo queue", function() {
       const initialState = {
-        undoQueue: [{ action: { type: "ACTION1" } }],
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
         redoQueue: [
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION3" } }
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION3" } }]
         ]
       };
       const action = { type: "ACTION4" };
       const expectedState = {
         undoQueue: [
-          { action: { type: "ACTION4" } },
-          { action: { type: "ACTION1" } }
+          [{ action: { type: "ACTION4" } }],
+          [{ action: { type: "ACTION1" } }]
         ],
         redoQueue: []
       };
@@ -59,18 +59,18 @@ describe("undoHistoryReducer", function() {
     it("removes the first item in the undo queue", function() {
       const initialState = {
         undoQueue: [
-          { action: { type: "ACTION3" } },
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION1" } }
+          [{ action: { type: "ACTION3" } }],
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION1" } }]
         ],
         redoQueue: []
       };
       const expectedState = {
         undoQueue: [
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION1" } }
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION1" } }]
         ],
-        redoQueue: [{ action: { type: "ACTION3" } }]
+        redoQueue: [[{ action: { type: "ACTION3" } }]]
       };
 
       const result = undoHistoryReducer(initialState, undo());
@@ -81,16 +81,16 @@ describe("undoHistoryReducer", function() {
     it("adds the first item in the undo queue to the redo queue", function() {
       const initialState = {
         undoQueue: [
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION1" } }
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION1" } }]
         ],
-        redoQueue: [{ action: { type: "ACTION3" } }]
+        redoQueue: [[{ action: { type: "ACTION3" } }]]
       };
       const expectedState = {
-        undoQueue: [{ action: { type: "ACTION1" } }],
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
         redoQueue: [
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION3" } }
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION3" } }]
         ]
       };
 
@@ -119,16 +119,16 @@ describe("undoHistoryReducer", function() {
       const initialState = {
         undoQueue: [],
         redoQueue: [
-          { action: { type: "ACTION1" } },
-          { action: { type: "ACTION3" } },
-          { action: { type: "ACTION2" } }
+          [{ action: { type: "ACTION1" } }],
+          [{ action: { type: "ACTION3" } }],
+          [{ action: { type: "ACTION2" } }]
         ]
       };
       const expectedState = {
-        undoQueue: [{ action: { type: "ACTION1" } }],
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
         redoQueue: [
-          { action: { type: "ACTION3" } },
-          { action: { type: "ACTION2" } }
+          [{ action: { type: "ACTION3" } }],
+          [{ action: { type: "ACTION2" } }]
         ]
       };
 
@@ -139,18 +139,18 @@ describe("undoHistoryReducer", function() {
 
     it("adds the first item in the redo queue to the undo queue", function() {
       const initialState = {
-        undoQueue: [{ action: { type: "ACTION1" } }],
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
         redoQueue: [
-          { action: { type: "ACTION3" } },
-          { action: { type: "ACTION2" } }
+          [{ action: { type: "ACTION3" } }],
+          [{ action: { type: "ACTION2" } }]
         ]
       };
       const expectedState = {
         undoQueue: [
-          { action: { type: "ACTION3" } },
-          { action: { type: "ACTION1" } }
+          [{ action: { type: "ACTION3" } }],
+          [{ action: { type: "ACTION1" } }]
         ],
-        redoQueue: [{ action: { type: "ACTION2" } }]
+        redoQueue: [[{ action: { type: "ACTION2" } }]]
       };
 
       const result = undoHistoryReducer(initialState, redo());
@@ -161,8 +161,8 @@ describe("undoHistoryReducer", function() {
     it("doesnt change undo queue if redo queue is empty", function() {
       const initialState = {
         undoQueue: [
-          { action: { type: "ACTION2" } },
-          { action: { type: "ACTION3" } }
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION3" } }]
         ],
         redoQueue: []
       };
