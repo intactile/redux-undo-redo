@@ -5,16 +5,10 @@ import {
   createUndoMiddleware,
   actions
 } from "../src";
-import counter, {
-  INCREMENT,
-  DECREMENT,
-  increment,
-  decrement,
-  revertingActions
-} from "./counterReduxModule";
+import counter, { increment, revertingActions } from "./counterReduxModule";
 
 describe("(Redux Module) Undo", () => {
-  const { undo, redo, group } = actions;
+  const { undo, redo, group, clearHistory } = actions;
   let store;
   beforeEach(() => {
     const initialState = {};
@@ -158,5 +152,13 @@ describe("(Redux Module) Undo", () => {
     store.dispatch(redo());
     checkCounter(1);
     undoThenCheckCounter(0);
+  });
+
+  it("should not redo if the history have been cleared", () => {
+    store.dispatch(increment());
+    store.dispatch(increment());
+    checkCounter(2);
+    store.dispatch(clearHistory());
+    undoThenCheckCounter(2);
   });
 });
