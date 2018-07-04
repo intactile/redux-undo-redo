@@ -1,8 +1,3 @@
-// function sum(a, b) {
-//     return a + b;
-//   }
-//   module.exports = sum;
-
-export default function sum(a, b) {
-  return a + b;
-}
+export createUndoMiddleware from "./createUndoMiddleware";
+export undoHistoryReducer from "./reducer";
+export * as actions from "./actions";
