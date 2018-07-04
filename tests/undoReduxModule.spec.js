@@ -1,10 +1,13 @@
 import undoHistoryReducer, {
   addUndoItem,
   undo,
-  redo
+  redo,
+  beginGroup,
+  endGroup,
+  clearHistory
 } from "../src/undoReduxModule";
 describe("undoHistoryReducer", function() {
-  describe("UNDO_HISTORY@ADD", function() {
+  describe("addUndoItem", function() {
     it("adds items to the undo queue in reverse order", function() {
       const initialState = {
         undoQueue: [],
@@ -53,9 +56,60 @@ describe("undoHistoryReducer", function() {
 
       expect(result).toEqual(expectedState);
     });
+
+    it("adds items to a new group if the group is not created", function() {
+      const initialState = {
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
+        redoQueue: [
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION3" } }]
+        ],
+        groupLevel: 2,
+        groupCreated: false
+      };
+      const action = { type: "ACTION4" };
+      const expectedState = {
+        undoQueue: [
+          [{ action: { type: "ACTION4" } }],
+          [{ action: { type: "ACTION1" } }]
+        ],
+        redoQueue: [],
+        groupLevel: 2,
+        groupCreated: true
+      };
+
+      const result = undoHistoryReducer(initialState, addUndoItem(action));
+
+      expect(result).toEqual(expectedState);
+    });
+
+    it("adds items to the first group if the group is created", function() {
+      const initialState = {
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
+        redoQueue: [
+          [{ action: { type: "ACTION2" } }],
+          [{ action: { type: "ACTION3" } }]
+        ],
+        groupLevel: 1,
+        groupCreated: true
+      };
+      const action = { type: "ACTION4" };
+      const expectedState = {
+        undoQueue: [
+          [{ action: { type: "ACTION4" } }, { action: { type: "ACTION1" } }]
+        ],
+        redoQueue: [],
+        groupLevel: 1,
+        groupCreated: true
+      };
+
+      const result = undoHistoryReducer(initialState, addUndoItem(action));
+
+      expect(result).toEqual(expectedState);
+    });
   });
 
-  describe("UNDO_HISTORY@UNDO", function() {
+  describe("undo", function() {
     it("removes the first item in the undo queue", function() {
       const initialState = {
         undoQueue: [
@@ -114,7 +168,7 @@ describe("undoHistoryReducer", function() {
     });
   });
 
-  describe("UNDO_HISTORY@REDO", function() {
+  describe("redo", function() {
     it("removes the first item in the redo queue", function() {
       const initialState = {
         undoQueue: [],
@@ -170,6 +224,69 @@ describe("undoHistoryReducer", function() {
       const result = undoHistoryReducer(initialState, redo());
 
       expect(result).toEqual(initialState);
+    });
+  });
+
+  describe("beginGroup", function() {
+    it("increment the group level and set groupCreated to false", function() {
+      const initialState = {
+        undoQueue: [[{ action: { type: "ACTION3" } }]],
+        redoQueue: [
+          [{ action: { type: "ACTION1" } }],
+          [{ action: { type: "ACTION2" } }]
+        ],
+        groupLevel: 0
+      };
+      const expectedState = {
+        ...initialState,
+        groupLevel: 1,
+        groupCreated: false
+      };
+
+      const result = undoHistoryReducer(initialState, beginGroup());
+
+      expect(result).toEqual(expectedState);
+    });
+
+    it("increment the group level and set groupCreated to true if the level is > 0", function() {
+      const initialState = {
+        undoQueue: [[{ action: { type: "ACTION3" } }]],
+        redoQueue: [
+          [{ action: { type: "ACTION1" } }],
+          [{ action: { type: "ACTION2" } }]
+        ],
+        groupLevel: 3
+      };
+      const expectedState = {
+        ...initialState,
+        groupLevel: 4,
+        groupCreated: true
+      };
+
+      const result = undoHistoryReducer(initialState, beginGroup());
+
+      expect(result).toEqual(expectedState);
+    });
+  });
+
+  describe("clearHistory", function() {
+    it("reset to a blank state", function() {
+      const initialState = {
+        undoQueue: [[{ action: { type: "ACTION1" } }]],
+        redoQueue: [
+          [{ action: { type: "ACTION1" } }],
+          [{ action: { type: "ACTION2" } }]
+        ]
+      };
+      const expectedState = {
+        undoQueue: [],
+        redoQueue: [],
+        groupLevel: 0
+      };
+
+      const result = undoHistoryReducer(initialState, clearHistory());
+
+      expect(result).toEqual(expectedState);
     });
   });
 });

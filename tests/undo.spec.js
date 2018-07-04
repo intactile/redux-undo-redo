@@ -28,16 +28,23 @@ describe("(Redux Module) Undo", () => {
 
   const checkCounter = value => expect(store.getState().counter).toEqual(value);
 
+  const undoThenCheckCounter = value => {
+    store.dispatch(undo());
+    checkCounter(value);
+  };
+
+  const redoThenCheckCounter = value => {
+    store.dispatch(redo());
+    checkCounter(value);
+  };
+
   it("should undo properly", () => {
     store.dispatch(increment());
     store.dispatch(increment());
     checkCounter(2);
 
-    store.dispatch(undo());
-    checkCounter(1);
-
-    store.dispatch(undo());
-    checkCounter(0);
+    undoThenCheckCounter(1);
+    undoThenCheckCounter(0);
   });
 
   it("should redo properly", () => {
@@ -45,34 +52,27 @@ describe("(Redux Module) Undo", () => {
     store.dispatch(increment());
     store.dispatch(undo());
     store.dispatch(undo());
-
     checkCounter(0);
-    store.dispatch(redo());
-    checkCounter(1);
 
-    store.dispatch(redo());
-    checkCounter(2);
+    redoThenCheckCounter(1);
+    redoThenCheckCounter(2);
   });
 
   it("should support unnecessary undos", () => {
     store.dispatch(increment());
 
-    store.dispatch(undo());
-    store.dispatch(undo());
-    checkCounter(0);
-    store.dispatch(redo());
-    checkCounter(1);
+    undoThenCheckCounter(0);
+    undoThenCheckCounter(0);
+    redoThenCheckCounter(1);
   });
 
   it("should support unnecessary redos", () => {
     store.dispatch(increment());
     store.dispatch(undo());
 
-    store.dispatch(redo());
-    store.dispatch(redo());
-    checkCounter(1);
-    store.dispatch(undo());
-    checkCounter(0);
+    redoThenCheckCounter(1);
+    redoThenCheckCounter(1);
+    undoThenCheckCounter(0);
   });
 
   it("should let undo and redo group of actions", () => {
@@ -92,14 +92,36 @@ describe("(Redux Module) Undo", () => {
       })
     );
     checkCounter(7);
-    store.dispatch(undo());
+    undoThenCheckCounter(5);
+    undoThenCheckCounter(4);
+    undoThenCheckCounter(1);
+    undoThenCheckCounter(0);
+    redoThenCheckCounter(1);
+    redoThenCheckCounter(4);
+    redoThenCheckCounter(5);
+    redoThenCheckCounter(7);
+  });
+
+  it("should let undo and redo succesive group of actions", () => {
+    store.dispatch(
+      group(dispatch => {
+        dispatch(increment());
+        dispatch(increment());
+        dispatch(increment());
+      })
+    );
+    store.dispatch(
+      group(dispatch => {
+        dispatch(increment());
+        dispatch(increment());
+      })
+    );
     checkCounter(5);
-    store.dispatch(undo());
-    checkCounter(4);
-    store.dispatch(undo());
-    checkCounter(1);
-    store.dispatch(undo());
-    checkCounter(0);
+
+    undoThenCheckCounter(3);
+    undoThenCheckCounter(0);
+    redoThenCheckCounter(3);
+    redoThenCheckCounter(5);
   });
 
   it("should let undo and redo nested group of actions", () => {
@@ -128,15 +150,13 @@ describe("(Redux Module) Undo", () => {
   it("should not redo if another action have been done", () => {
     store.dispatch(increment());
     store.dispatch(increment());
-    store.dispatch(undo());
-    store.dispatch(undo());
-    checkCounter(0);
+    undoThenCheckCounter(1);
+    undoThenCheckCounter(0);
     store.dispatch(increment());
     checkCounter(1);
 
     store.dispatch(redo());
     checkCounter(1);
-    store.dispatch(undo());
-    checkCounter(0);
+    undoThenCheckCounter(0);
   });
 });

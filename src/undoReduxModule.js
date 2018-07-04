@@ -46,7 +46,7 @@ export function addUndoItem(action, args) {
   };
 }
 
-export function clear() {
+export function clearHistory() {
   return {
     type: CLEAR_HISTORY
   };
@@ -92,12 +92,13 @@ export default function undoHistoryReducer(state = initialState, action) {
           };
     }
     case ADD_UNDO_ITEM: {
-      if (state.groupLevel > 0) {
-        if (state.groupCreated) {
-          const group = [undoItem, ...state.undoQueue[0]];
+      const { groupLevel, groupCreated } = state;
+      if (groupLevel > 0) {
+        if (groupCreated) {
+          const group = [undoItem, ...undoQueue[0]];
           return {
             ...state,
-            undoQueue: [group, ...state.undoQueue.slice(1)],
+            undoQueue: [group, ...undoQueue.slice(1)],
             redoQueue: []
           };
         } else {
