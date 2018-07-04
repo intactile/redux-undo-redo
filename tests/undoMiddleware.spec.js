@@ -1,24 +1,19 @@
 import configureStore from "redux-mock-store";
 import createUndoMiddleware from "../src/createUndoMiddleware";
 import { addUndoItem, undo, redo } from "../src/undoReduxModule";
+import {
+  setValue,
+  increment,
+  decrement,
+  revertingActions
+} from "./counterReduxModule";
 
 const initialState = {
   counter: 4,
   viewState: true
 };
 
-const increment = () => ({ type: "INCREMENT" });
-const decrement = () => ({ type: "DECREMENT" });
-const setCounterVal = viewState => ({ type: "SET_COUNTER_VAL", viewState });
 const notUndoableAction = () => ({ type: "NOT_UNDOABLE" });
-const revertingActions = {
-  INCREMENT: () => decrement(),
-  DECREMENT: () => increment(),
-  SET_COUNTER_VAL: {
-    action: (action, { val }) => setCounterVal(val),
-    createArgs: (state, action) => ({ val: state.counter })
-  }
-};
 const undoMiddleware = createUndoMiddleware({
   revertingActions
 });
@@ -50,7 +45,7 @@ describe("undoMiddleware", function() {
 
   it("dispatches UNDO_HISTORY@ADD for supported actions with args", function() {
     const store = mockStore(initialState);
-    const action = setCounterVal(7);
+    const action = setValue(7);
     store.dispatch(action);
 
     expect(store.getActions()).toEqual([
@@ -61,7 +56,7 @@ describe("undoMiddleware", function() {
 
   it("dispatches UNDO_HISTORY@ADD with view states", function() {
     const store = mockStore(initialState);
-    const action = setCounterVal(7);
+    const action = setValue(7);
     store.dispatch(action);
 
     expect(store.getActions()).toEqual([

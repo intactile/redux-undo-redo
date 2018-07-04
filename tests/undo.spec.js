@@ -9,7 +9,8 @@ import counter, {
   INCREMENT,
   DECREMENT,
   increment,
-  decrement
+  decrement,
+  revertingActions
 } from "./counterReduxModule";
 
 describe("(Redux Module) Undo", () => {
@@ -17,10 +18,6 @@ describe("(Redux Module) Undo", () => {
   let store;
   beforeEach(() => {
     const initialState = {};
-    const revertingActions = {
-      [INCREMENT]: decrement,
-      [DECREMENT]: increment
-    };
     const undoMiddleware = createUndoMiddleware({ revertingActions });
     store = createStore(
       combineReducers({ counter, undoHistory }),
