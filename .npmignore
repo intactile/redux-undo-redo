@@ -1,0 +1,21 @@
+#sources
+src
+
+#tests
+tests
+coverage
+jest.config.test
+
+#build tools
+.babelrc
+.travis.yml
+.codeclimate.yml
+
+#linters
+.jscsrc
+.jshintrc
+.eslintrc*
+
+#editor settings
+.idea
+.editorconfig
