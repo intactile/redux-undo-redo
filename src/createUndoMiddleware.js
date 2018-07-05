@@ -10,8 +10,20 @@ import {
 } from "./undoReduxModule";
 
 export default function createUndoMiddleware({ revertingActions }) {
-  let acting = false;
+  function getUndoAction(undoItem) {
+    const { action, args } = undoItem;
+    const { type } = action;
+    const actionCreator =
+      revertingActions[type].action || revertingActions[type];
+    return actionCreator(action, args);
+  }
 
+  function getUndoArgs(state, action) {
+    let argsFactory = revertingActions[action.type].createArgs;
+    return argsFactory && argsFactory(state, action);
+  }
+
+  let acting = false;
   return ({ dispatch, getState }) => next => action => {
     const state = getState();
     const ret = next(action);
@@ -22,9 +34,10 @@ export default function createUndoMiddleware({ revertingActions }) {
           const undoItems = getUndoItems(state);
           if (undoItems) {
             acting = true;
-            undoItems.forEach(undoItem => {
+            for (let index = 0; index < undoItems.length; index++) {
+              const undoItem = undoItems[index];
               dispatch(getUndoAction(undoItem));
-            });
+            }
             acting = false;
           }
         }
@@ -34,9 +47,10 @@ export default function createUndoMiddleware({ revertingActions }) {
           const redoItems = getRedoItems(state);
           if (redoItems) {
             acting = true;
-            redoItems.reverse().forEach(redoItem => {
+            for (let index = redoItems.length - 1; index >= 0; index--) {
+              const redoItem = redoItems[index];
               dispatch(redoItem.action);
-            });
+            }
             acting = false;
           }
         }
@@ -57,17 +71,4 @@ export default function createUndoMiddleware({ revertingActions }) {
 
     return ret;
   };
-
-  function getUndoAction(undoItem) {
-    const { action, args } = undoItem;
-    const { type } = action;
-    const actionCreator =
-      revertingActions[type].action || revertingActions[type];
-    return actionCreator(action, args);
-  }
-
-  function getUndoArgs(state, action) {
-    let argsFactory = revertingActions[action.type].createArgs;
-    return argsFactory && argsFactory(state, action);
-  }
 }
