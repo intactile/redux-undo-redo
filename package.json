@@ -2,13 +2,16 @@
   "name": "@intactile/redux-undo-redo",
   "version": "0.4.0",
   "description": "An undo redo package for redux",
-  "main": "distribution/index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "clean": "rimraf dist",
     "test": "jest",
     "test:cover": "jest --coverage --collectCoverageFrom=src/**/*.js",
     "test:watch": "jest --watch",
-    "build": "babel src --out-dir distribution",
-    "prepublish": "npm run build"
+    "compile": "babel src --out-dir dist",
+    "build": "yarn check --integrity && npm run clean && babel src --out-dir dist",
+    "build:ci": "npm run test:cover && npm run build",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -33,7 +36,8 @@
     "redux": "^4.0.0",
     "redux-mock-store": "^1.5.3",
     "redux-thunk": "^2.3.0",
-    "regenerator-runtime": "^0.12.0"
+    "regenerator-runtime": "^0.12.0",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {}
 }

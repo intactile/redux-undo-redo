@@ -7,4 +7,4 @@ cache:
   yarn: true
   directories:
     - node_modules
-script: npm run test:cover
+script: npm run build:ci
