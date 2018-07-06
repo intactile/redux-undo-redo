@@ -43,9 +43,18 @@ describe('undoMiddleware', () => {
   it('dispatches BEGIN_GROUP AND END_GROUP for GROUP actions', () => {
     const store = mockStore(initialState);
     const action = increment();
-    const groupedAction = group(action);
+    const action2 = decrement();
+    const groupedAction = group(action, action2);
     store.dispatch(groupedAction);
-    expect(store.getActions()).toEqual([groupedAction, beginGroup(), action, endGroup()]);
+    expect(store.getActions()).toEqual([
+      groupedAction,
+      beginGroup(),
+      action,
+      addUndoItem(action),
+      action2,
+      addUndoItem(action2),
+      endGroup()
+    ]);
   });
 
   describe('UNDO_HISTORY@UNDO', () => {

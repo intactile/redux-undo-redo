@@ -87,9 +87,9 @@ store.dispatch(actions.redo()); // counter = 3
 ```javascript
 store.dispatch(
   actions.group(dispatch => {
-    increment();
-    increment();
-    increment();
+    dispatch(increment());
+    dispatch(increment());
+    dispatch(increment());
   })
 ); // counter = 3
 

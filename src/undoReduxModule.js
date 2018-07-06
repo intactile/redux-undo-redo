@@ -51,10 +51,10 @@ export function clearHistory() {
     type: CLEAR_HISTORY
   };
 }
-export function group(action) {
+export function group(...actions) {
   return {
     type: GROUP,
-    payload: action
+    payload: actions
   };
 }
 

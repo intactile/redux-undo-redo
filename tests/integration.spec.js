@@ -18,7 +18,7 @@ describe('redux-undo-redo package', () => {
     store = createStore(
       combineReducers({ counter, undoHistory }),
       initialState,
-      applyMiddleware(undoMiddleware, thunk)
+      applyMiddleware(thunk, undoMiddleware)
     );
   });
 
@@ -81,20 +81,9 @@ describe('redux-undo-redo package', () => {
 
   it('should let undo and redo group of actions', () => {
     store.dispatch(increment());
-    store.dispatch(
-      group(dispatch => {
-        dispatch(increment());
-        dispatch(increment());
-        dispatch(increment());
-      })
-    );
+    store.dispatch(group(increment(), increment(), increment()));
     store.dispatch(increment());
-    store.dispatch(
-      group(dispatch => {
-        dispatch(increment());
-        dispatch(increment());
-      })
-    );
+    store.dispatch(group(increment(), increment()));
     checkCounter(7);
     undoThenCheckCounter(5);
     undoThenCheckCounter(4);
@@ -107,19 +96,8 @@ describe('redux-undo-redo package', () => {
   });
 
   it('should let undo and redo succesive group of actions', () => {
-    store.dispatch(
-      group(dispatch => {
-        dispatch(increment());
-        dispatch(increment());
-        dispatch(increment());
-      })
-    );
-    store.dispatch(
-      group(dispatch => {
-        dispatch(increment());
-        dispatch(increment());
-      })
-    );
+    store.dispatch(group(increment(), increment(), increment()));
+    store.dispatch(group(increment(), increment()));
     checkCounter(5);
 
     undoThenCheckCounter(3);
@@ -190,22 +168,12 @@ describe('redux-undo-redo package', () => {
   });
 
   it('should undo/redo groups in the correct order', () => {
-    store.dispatch(
-      group(dispatch => {
-        dispatch(setValue(3));
-        dispatch(multiplyValue(3));
-      })
-    );
+    store.dispatch(group(setValue(3), multiplyValue(3)));
     checkCounter(9);
-    store.dispatch(
-      group(dispatch => {
-        dispatch(increment());
-        dispatch(multiplyValue(2));
-      })
-    );
+    store.dispatch(group(increment(), multiplyValue(2)));
+    checkCounter(20);
 
     repeat10Times(() => {
-      checkCounter(20);
       undoThenCheckCounter(9);
       undoThenCheckCounter(0);
       redoThenCheckCounter(9);
