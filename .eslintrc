@@ -1,0 +1,47 @@
+{
+  "parser": "babel-eslint",
+  "extends": ["airbnb-base", "prettier", "plugin:jest/recommended"],
+  "plugins": ["prettier", "jest"],
+
+  "env": {
+    "browser": true,
+    "jest/globals": true
+  },
+
+  "globals": {
+    "__DEV__": false,
+    "__TEST__": false,
+    "__PROD__": false,
+    "__COVERAGE__": false
+  },
+
+  "rules": {
+    "no-console": "error",
+    "object-curly-newline": 0,
+    "prefer-destructuring": 0,
+    "comma-dangle": ["error", "never"],
+    "no-underscore-dangle": 0,
+    "no-named-as-default-member": 0,
+    "no-lonely-if": 2,
+    "no-nested-ternary": 2,
+    "no-throw-literal": 0,
+    "no-plusplus": 0,
+    "max-nested-callbacks": [2, { "max": 5 }],
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }],
+    "constructor-super": 2,
+    "no-this-before-super": 2,
+    "prefer-spread": 2,
+    "prefer-reflect": 0,
+    "no-warning-comments": [1, { "terms": ["todo", "fixme"], "location": "start" }],
+    "no-param-reassign": 0,
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    "complexity": ["error", 4],
+    "prettier/prettier": [
+      "error",
+      {
+        "printWidth": 100,
+        "singleQuote": true
+      }
+    ]
+  }
+}

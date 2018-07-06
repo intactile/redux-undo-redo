@@ -7,23 +7,23 @@ import {
   addUndoItem,
   getUndoItems,
   getRedoItems
-} from "./undoReduxModule";
+} from './undoReduxModule';
 
 export default function createUndoMiddleware({ revertingActions }) {
   function getUndoAction(undoItem) {
     const { action, args } = undoItem;
     const { type } = action;
-    const actionCreator =
-      revertingActions[type].action || revertingActions[type];
+    const actionCreator = revertingActions[type].action || revertingActions[type];
     return actionCreator(action, args);
   }
 
   function getUndoArgs(state, action) {
-    let argsFactory = revertingActions[action.type].createArgs;
+    const argsFactory = revertingActions[action.type].createArgs;
     return argsFactory && argsFactory(state, action);
   }
 
   let acting = false;
+  // eslint-disable-next-line complexity
   return ({ dispatch, getState }) => next => action => {
     const state = getState();
     const ret = next(action);

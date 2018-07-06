@@ -1,8 +1,8 @@
-export const INCREMENT = "INCREMENT";
-export const DECREMENT = "DECREMENT";
-export const SET_VALUE = "SET_VALUE";
-export const MULTIPLY_VALUE = "MULTIPLY_VALUE";
-export const DIVIDE_VALUE = "DIVIDE_VALUE";
+export const INCREMENT = 'INCREMENT';
+export const DECREMENT = 'DECREMENT';
+export const SET_VALUE = 'SET_VALUE';
+export const MULTIPLY_VALUE = 'MULTIPLY_VALUE';
+export const DIVIDE_VALUE = 'DIVIDE_VALUE';
 
 export const increment = () => ({
   type: INCREMENT
@@ -31,25 +31,35 @@ export const revertingActions = {
   [DECREMENT]: () => increment(),
   [SET_VALUE]: {
     action: (action, { val }) => setValue(val),
-    createArgs: (state, action) => ({ val: state.counter })
+    createArgs: state => ({ val: state.counter })
   },
   [MULTIPLY_VALUE]: {
     action: action => divideValue(action.payload),
-    createArgs: (state, action) => ({ val: state.counter })
+    createArgs: state => ({ val: state.counter })
   }
 };
 
-export default function testReducer(state = 0, action) {
-  if (action.type === INCREMENT) {
+const caseReducers = {
+  [INCREMENT](state) {
     return state + 1;
-  } else if (action.type === DECREMENT) {
+  },
+  [DECREMENT](state) {
     return state - 1;
-  } else if (action.type === MULTIPLY_VALUE) {
+  },
+  [MULTIPLY_VALUE](state, action) {
     return state * action.payload;
-  } else if (action.type === DIVIDE_VALUE) {
+  },
+  [DIVIDE_VALUE](state, action) {
     return state / action.payload;
-  } else if (action.type === SET_VALUE) {
+  },
+  [SET_VALUE](state, action) {
     return action.payload;
+  }
+};
+export default function testReducer(state = 0, action) {
+  const reducer = caseReducers[action.type];
+  if (reducer) {
+    return reducer(state, action);
   }
   return state;
 }

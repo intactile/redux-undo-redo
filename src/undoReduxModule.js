@@ -1,13 +1,13 @@
 // ------------------------------------
 // Constants
 // ------------------------------------
-export const GROUP = "UNDO_HISTORY@GROUP";
-export const UNDO = "UNDO_HISTORY@UNDO";
-export const REDO = "UNDO_HISTORY@REDO";
-export const BEGIN_GROUP = "UNDO_HISTORY@BEGIN_GROUP";
-export const END_GROUP = "UNDO_HISTORY@END_GROUP";
-const ADD_UNDO_ITEM = "UNDO_HISTORY@ADD";
-const CLEAR_HISTORY = "UNDO_HISTORY@CLEAR";
+export const GROUP = 'UNDO_HISTORY@GROUP';
+export const UNDO = 'UNDO_HISTORY@UNDO';
+export const REDO = 'UNDO_HISTORY@REDO';
+export const BEGIN_GROUP = 'UNDO_HISTORY@BEGIN_GROUP';
+export const END_GROUP = 'UNDO_HISTORY@END_GROUP';
+const ADD_UNDO_ITEM = 'UNDO_HISTORY@ADD';
+const CLEAR_HISTORY = 'UNDO_HISTORY@CLEAR';
 
 // ------------------------------------
 // Selectors
@@ -91,25 +91,24 @@ function redoReducer(state) {
 }
 
 function addUndoItemReducer(state, action) {
-  const { undoQueue, redoQueue } = state;
-  const { type, payload: undoItem } = action;
+  const { undoQueue } = state;
+  const { payload: undoItem } = action;
   const { groupLevel, groupCreated } = state;
   if (groupLevel > 0) {
     if (groupCreated) {
-      const group = [undoItem, ...undoQueue[0]];
+      const groupedAction = [undoItem, ...undoQueue[0]];
       return {
         ...state,
-        undoQueue: [group, ...undoQueue.slice(1)],
+        undoQueue: [groupedAction, ...undoQueue.slice(1)],
         redoQueue: []
       };
-    } else {
-      return {
-        ...state,
-        undoQueue: [[undoItem], ...undoQueue],
-        redoQueue: [],
-        groupCreated: true
-      };
     }
+    return {
+      ...state,
+      undoQueue: [[undoItem], ...undoQueue],
+      redoQueue: [],
+      groupCreated: true
+    };
   }
   return {
     ...state,

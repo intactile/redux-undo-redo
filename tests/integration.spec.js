@@ -1,19 +1,14 @@
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-import {
-  undoReducer as undoHistory,
-  createUndoMiddleware,
-  actions,
-  selectors
-} from "../src";
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { undoReducer as undoHistory, createUndoMiddleware, actions, selectors } from '../src';
 import counter, {
   increment,
   setValue,
   multiplyValue,
   revertingActions
-} from "./counterReduxModule";
+} from './counterReduxModule';
 
-describe("(Redux Module) Undo", () => {
+describe('redux-undo-redo package', () => {
   const { undo, redo, group, clearHistory } = actions;
   const { canUndo, canRedo } = selectors;
   let store;
@@ -47,7 +42,7 @@ describe("(Redux Module) Undo", () => {
     }
   };
 
-  it("should undo properly", () => {
+  it('should undo properly', () => {
     store.dispatch(increment());
     store.dispatch(increment());
     checkCounter(2);
@@ -56,7 +51,7 @@ describe("(Redux Module) Undo", () => {
     undoThenCheckCounter(0);
   });
 
-  it("should redo properly", () => {
+  it('should redo properly', () => {
     store.dispatch(increment());
     store.dispatch(increment());
     store.dispatch(undo());
@@ -67,7 +62,7 @@ describe("(Redux Module) Undo", () => {
     redoThenCheckCounter(2);
   });
 
-  it("should support unnecessary undos", () => {
+  it('should support unnecessary undos', () => {
     store.dispatch(increment());
 
     undoThenCheckCounter(0);
@@ -75,7 +70,7 @@ describe("(Redux Module) Undo", () => {
     redoThenCheckCounter(1);
   });
 
-  it("should support unnecessary redos", () => {
+  it('should support unnecessary redos', () => {
     store.dispatch(increment());
     store.dispatch(undo());
 
@@ -84,7 +79,7 @@ describe("(Redux Module) Undo", () => {
     undoThenCheckCounter(0);
   });
 
-  it("should let undo and redo group of actions", () => {
+  it('should let undo and redo group of actions', () => {
     store.dispatch(increment());
     store.dispatch(
       group(dispatch => {
@@ -111,7 +106,7 @@ describe("(Redux Module) Undo", () => {
     redoThenCheckCounter(7);
   });
 
-  it("should let undo and redo succesive group of actions", () => {
+  it('should let undo and redo succesive group of actions', () => {
     store.dispatch(
       group(dispatch => {
         dispatch(increment());
@@ -133,7 +128,7 @@ describe("(Redux Module) Undo", () => {
     redoThenCheckCounter(5);
   });
 
-  it("should let undo and redo nested group of actions", () => {
+  it('should let undo and redo nested group of actions', () => {
     store.dispatch(increment());
     store.dispatch(
       group(dispatch => {
@@ -156,7 +151,7 @@ describe("(Redux Module) Undo", () => {
     checkCounter(5);
   });
 
-  it("should not redo if another action have been done", () => {
+  it('should not redo if another action have been done', () => {
     store.dispatch(increment());
     store.dispatch(increment());
     undoThenCheckCounter(1);
@@ -169,7 +164,7 @@ describe("(Redux Module) Undo", () => {
     undoThenCheckCounter(0);
   });
 
-  it("should not redo if the history have been cleared", () => {
+  it('should not redo if the history have been cleared', () => {
     store.dispatch(increment());
     store.dispatch(increment());
     checkCounter(2);
@@ -177,7 +172,7 @@ describe("(Redux Module) Undo", () => {
     undoThenCheckCounter(2);
   });
 
-  it("should undo/redo in the correct order", () => {
+  it('should undo/redo in the correct order', () => {
     store.dispatch(setValue(10));
     store.dispatch(setValue(5));
     store.dispatch(setValue(1));
@@ -194,7 +189,7 @@ describe("(Redux Module) Undo", () => {
     });
   });
 
-  it("should undo/redo groups in the correct order", () => {
+  it('should undo/redo groups in the correct order', () => {
     store.dispatch(
       group(dispatch => {
         dispatch(setValue(3));
@@ -218,7 +213,7 @@ describe("(Redux Module) Undo", () => {
     });
   });
 
-  it("should tells if undo or redo are possible", () => {
+  it('should tells if undo or redo are possible', () => {
     checkCanUndo(false);
     checkCanRedo(false);
 
