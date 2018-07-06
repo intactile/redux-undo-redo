@@ -54,3 +54,45 @@ const store = createStore(
   applyMiddleware(thunk) // add the middleware
 );
 ```
+
+## Usage
+
+### Undo/redo actions
+
+```javascript
+import { actions, selectors } from "@intactile/redux-undo-redo";
+import { increment, decrement, setValue } from "./counterReduxModule";
+
+store.dispatch(increment()); // counter = 1
+store.dispatch(increment()); // counter = 2
+console.log(selectors.canUndo(store.getState())); // true
+
+store.dispatch(actions.undo()); // counter = 1
+console.log(selectors.canRedo(store.getState())); // true
+
+store.dispatch(actions.redo()); // counter = 2
+```
+
+### Undo/redo group of actions
+
+```javascript
+store.dispatch(actions.group(increment(), increment(), increment())); // counter = 3
+
+store.dispatch(actions.undo()); // counter = 0
+store.dispatch(actions.redo()); // counter = 3
+```
+
+### Undo/redo group of actions with redux-thunk
+
+```javascript
+store.dispatch(
+  actions.group(dispatch => {
+    increment();
+    increment();
+    increment();
+  })
+); // counter = 3
+
+store.dispatch(actions.undo()); // counter = 0
+store.dispatch(actions.redo()); // counter = 3
+```
