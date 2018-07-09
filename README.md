@@ -45,14 +45,28 @@ This configuration is supplied to a middleware registered with a reducer on the 
 
 ```javascript
 import { createStore, combineReducers, applyMiddleware } from "redux";
-import { undoReducer, createUndoMiddleware } from "@intactile/redux-undo-redo";
+import {
+  createUndoReducer,
+  createUndoMiddleware
+} from "@intactile/redux-undo-redo";
 
 const undoMiddleware = createUndoMiddleware({ revertingActions });
+const undoHistory = : createUndoReducer();
 const store = createStore(
-  combineReducers({ counter, undoHistory: undoReducer }), // add the reducer
+  combineReducers({ counter, undoHistory }), // add the reducer
   initialState,
   applyMiddleware(thunk) // add the middleware
 );
+```
+
+The undo and the redo histories are limited to respectively 50 and 10 by default.
+They can be increased or decreased when the reducer is created:
+
+```javascript
+const undoHistory = createUndoReducer({
+  undoHistorySize: 200,
+  redoHistorySize: 100
+});
 ```
 
 ## Usage

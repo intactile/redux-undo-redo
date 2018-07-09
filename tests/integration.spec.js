@@ -1,6 +1,6 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { undoReducer as undoHistory, createUndoMiddleware, actions, selectors } from '../src';
+import { createUndoReducer, createUndoMiddleware, actions, selectors } from '../src';
 import counter, {
   increment,
   setValue,
@@ -16,7 +16,7 @@ describe('redux-undo-redo package', () => {
     const initialState = {};
     const undoMiddleware = createUndoMiddleware({ revertingActions });
     store = createStore(
-      combineReducers({ counter, undoHistory }),
+      combineReducers({ counter, undoHistory: createUndoReducer() }),
       initialState,
       applyMiddleware(thunk, undoMiddleware)
     );
@@ -36,8 +36,14 @@ describe('redux-undo-redo package', () => {
     checkCounter(value);
   };
 
-  const repeat10Times = callback => {
+  const repeatFewTimes = callback => {
     for (let index = 0; index < 5; index++) {
+      callback();
+    }
+  };
+
+  const repeat100Times = callback => {
+    for (let index = 0; index < 100; index++) {
       callback();
     }
   };
@@ -157,7 +163,7 @@ describe('redux-undo-redo package', () => {
     checkCounter(1);
     // console.log(JSON.stringify(store.getState().undoHistory, null, 2));
 
-    repeat10Times(() => {
+    repeatFewTimes(() => {
       undoThenCheckCounter(5);
       undoThenCheckCounter(10);
       undoThenCheckCounter(0);
@@ -173,7 +179,7 @@ describe('redux-undo-redo package', () => {
     store.dispatch(group(increment(), multiplyValue(2)));
     checkCounter(20);
 
-    repeat10Times(() => {
+    repeatFewTimes(() => {
       undoThenCheckCounter(9);
       undoThenCheckCounter(0);
       redoThenCheckCounter(9);
@@ -208,5 +214,14 @@ describe('redux-undo-redo package', () => {
     store.dispatch(redo());
     checkCanUndo(true);
     checkCanRedo(false);
+  });
+
+  it('should limit redo and undo history', () => {
+    repeat100Times(() => store.dispatch(increment()));
+    checkCounter(100);
+    repeat100Times(() => store.dispatch(undo()));
+    checkCounter(50);
+    repeat100Times(() => store.dispatch(redo()));
+    checkCounter(60);
   });
 });

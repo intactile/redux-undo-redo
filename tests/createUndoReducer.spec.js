@@ -1,14 +1,8 @@
-import undoHistoryReducer, {
-  addUndoItem,
-  undo,
-  redo,
-  beginGroup,
-  clearHistory,
-  canUndo,
-  canRedo
-} from '../src/undoReduxModule';
+import { addUndoItem, undo, redo, beginGroup, clearHistory } from '../src/actions';
+import { canUndo, canRedo } from '../src/selectors';
+import createUndoReducer from '../src/createUndoReducer';
 
-describe('undoHistoryModule', () => {
+describe('createReducer', () => {
   describe('selectors', () => {
     describe('canUndo', () => {
       it('return true if the undo queue is not empty', () => {
@@ -50,6 +44,7 @@ describe('undoHistoryModule', () => {
     });
   });
   describe('reducer', () => {
+    const undoHistoryReducer = createUndoReducer();
     describe('addUndoItem', () => {
       it('adds items to the undo queue in reverse order', () => {
         const initialState = {
@@ -276,6 +271,57 @@ describe('undoHistoryModule', () => {
         const result = undoHistoryReducer(initialState, clearHistory());
 
         expect(result).toEqual(expectedState);
+      });
+    });
+    describe('undo queue', () => {
+      function checkUndoMaxHistoryLength(reducer, maxLength) {
+        const initialState = {
+          undoQueue: [],
+          redoQueue: []
+        };
+
+        let state = initialState;
+        for (let index = 1; index <= 100; index++) {
+          const action = { type: `ACTION${index}` };
+          state = reducer(state, addUndoItem(action));
+        }
+        expect(state.undoQueue[0]).toEqual([{ action: { type: 'ACTION100' }, args: undefined }]);
+        expect(state.undoQueue).toHaveLength(maxLength);
+      }
+
+      it('is limited to 50 by default', () => {
+        checkUndoMaxHistoryLength(undoHistoryReducer, 50);
+      });
+
+      it('could be limited to 10', () => {
+        checkUndoMaxHistoryLength(createUndoReducer({ undoHistorySize: 10 }), 10);
+      });
+    });
+    describe('redo queue', () => {
+      function checkMaxRedoHistoryLength(reducer, maxLength) {
+        const initialState = {
+          undoQueue: [],
+          redoQueue: []
+        };
+
+        let state = initialState;
+        for (let index = 1; index <= 100; index++) {
+          const action = { type: `ACTION${index}` };
+          state = reducer(state, addUndoItem(action));
+        }
+        for (let index = 1; index <= 100; index++) {
+          state = reducer(state, undo());
+        }
+        expect(state.redoQueue).toHaveLength(maxLength);
+        expect(state.redoQueue[0]).toEqual([{ action: { type: 'ACTION1' }, args: undefined }]);
+      }
+
+      it('is limited to 10 by default', () => {
+        checkMaxRedoHistoryLength(undoHistoryReducer, 10);
+      });
+
+      it('could be limited to 50', () => {
+        checkMaxRedoHistoryLength(createUndoReducer({ redoHistorySize: 50 }), 50);
       });
     });
   });

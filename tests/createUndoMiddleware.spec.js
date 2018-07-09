@@ -1,6 +1,6 @@
 import configureStore from 'redux-mock-store';
 import createUndoMiddleware from '../src/createUndoMiddleware';
-import { addUndoItem, undo, redo, group, beginGroup, endGroup } from '../src/undoReduxModule';
+import { addUndoItem, undo, redo, group, beginGroup, endGroup } from '../src/actions';
 import { setValue, increment, decrement, revertingActions } from './counterReduxModule';
 
 const initialState = {

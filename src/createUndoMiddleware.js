@@ -1,13 +1,5 @@
-import {
-  UNDO,
-  REDO,
-  GROUP,
-  beginGroup,
-  endGroup,
-  addUndoItem,
-  getUndoItems,
-  getRedoItems
-} from './undoReduxModule';
+import { UNDO, REDO, GROUP, beginGroup, endGroup, addUndoItem } from './actions';
+import { getUndoItems, getRedoItems } from './selectors';
 
 export default function createUndoMiddleware({ revertingActions }) {
   let acting = false;
