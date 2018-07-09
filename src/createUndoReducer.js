@@ -35,28 +35,21 @@ function redoReducer(state) {
 
 function createAddUndoItemReducer({ undoHistorySize = 50 }) {
   return function addUndoItemReducer(state, action) {
-    const { undoQueue } = state;
+    const { undoQueue, groupLevel, groupCreated } = state;
     const { payload: undoItem } = action;
-    const { groupLevel, groupCreated } = state;
-    if (groupLevel > 0) {
-      if (groupCreated) {
-        const groupedAction = [undoItem, ...undoQueue[0]];
-        return {
-          ...state,
-          undoQueue: limitArraySize([groupedAction, ...undoQueue.slice(1)], undoHistorySize),
-          redoQueue: []
-        };
-      }
-      return {
-        ...state,
-        undoQueue: limitArraySize([[undoItem], ...undoQueue], undoHistorySize),
-        redoQueue: [],
-        groupCreated: true
-      };
+    let newUndoQueue = undoQueue;
+    if (groupLevel > 0 && groupCreated) {
+      const groupedAction = [undoItem, ...undoQueue[0]];
+      newUndoQueue = [groupedAction, ...undoQueue.slice(1)];
+    } else {
+      newUndoQueue = [[undoItem], ...undoQueue];
     }
+    newUndoQueue = limitArraySize(newUndoQueue, undoHistorySize);
+
     return {
       ...state,
-      undoQueue: limitArraySize([[undoItem], ...undoQueue], undoHistorySize),
+      undoQueue: limitArraySize(newUndoQueue),
+      groupCreated: groupLevel > 0 ? true : undefined,
       redoQueue: []
     };
   };
