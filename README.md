@@ -41,7 +41,24 @@ const revertingActions = {
 };
 ```
 
-This configuration is supplied to a middleware registered with a reducer on the redux store.
+### Reverting actions
+
+This is a map between the `action type` and it's reverting action creator, the action creator gets the original action and should return the reverting action.
+If the the original action is not enough to create a reverting action you can provide `createArgs` that will result in an `args` argument for the reverting action:
+
+```javascript
+{
+  action: (action, args) => revertingActionCreator(action.something, args.somethingElse),
+  createArgs: (state, action) => ({somethingElse: state.something})
+}
+```
+
+the `createArgs` function runs _before_ the action happens and collects information needed to revert the action.
+you get this as a second argument for the reverting action creator.
+
+### Middleware and reducer
+
+These reverting actions are supplied to a middleware registered with a reducer on the redux store.
 
 ```javascript
 import { createStore, combineReducers, applyMiddleware } from "redux";
@@ -58,6 +75,8 @@ const store = createStore(
   applyMiddleware(thunk) // add the middleware
 );
 ```
+
+### History size
 
 The undo and the redo histories are limited to respectively 50 and 10 by default.
 They can be increased or decreased when the reducer is created:
