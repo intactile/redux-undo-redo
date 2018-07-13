@@ -1,3 +1,5 @@
+import { createModuleReducer } from '@intactile/redux-utils';
+
 import { UNDO, REDO, ADD_UNDO_ITEM, BEGIN_GROUP, END_GROUP, CLEAR_HISTORY } from './actions';
 
 const initialState = {
@@ -75,19 +77,15 @@ function clearHistoryReducer() {
 }
 
 export default function createUndoHistoryReducer(conf = {}) {
-  return function undoHistoryReducer(state = initialState, action) {
-    const caseReducers = {
+  return createModuleReducer(
+    {
       [UNDO]: createUndoReducer(conf),
       [REDO]: redoReducer,
       [ADD_UNDO_ITEM]: createAddUndoItemReducer(conf),
       [BEGIN_GROUP]: beginGroupReducer,
       [END_GROUP]: endGroupReducer,
       [CLEAR_HISTORY]: clearHistoryReducer
-    };
-    const reducer = caseReducers[action.type];
-    if (reducer) {
-      return reducer(state, action);
-    }
-    return state;
-  };
+    },
+    initialState
+  );
 }

@@ -29,12 +29,19 @@ yarn add @intactile/redux-undo-redo
 This package is configured with a set of reverting actions:
 
 ```javascript
-import counter, { increment, decrement, setValue } from "./counterReduxModule";
+import counter, {
+  increment,
+  decrement,
+  setValue,
+  INCREMENT,
+  DECREMENT,
+  SET_COUNTER_VALUE
+} from "./counterReduxModule";
 
 const revertingActions = {
-  INCREMENT: () => decrement(),
-  DECREMENT: () => increment(),
-  SET_COUNTER_VALUE: {
+  [INCREMENT]: () => decrement(),
+  [DECREMENT]: () => increment(),
+  [SET_COUNTER_VALUE]: {
     action: (action, { val }) => setValue(val),
     createArgs: (state, action) => ({ val: state.counter })
   }

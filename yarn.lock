@@ -600,6 +600,12 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
+"@intactile/redux-utils@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@intactile/redux-utils/-/redux-utils-0.1.0.tgz#39ae10ff712387e2366c71f004dc27de4a679184"
+  dependencies:
+    invariant "^2.2.4"
+
 abab@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/abab/-/abab-1.0.4.tgz#5faad9c2c07f60dd76770f71cf025b62a63cfd4e"
@@ -2087,7 +2093,7 @@ inquirer@^5.2.0:
     strip-ansi "^4.0.0"
     through "^2.3.6"
 
-invariant@^2.2.0, invariant@^2.2.2:
+invariant@^2.2.0, invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   dependencies:

@@ -1,3 +1,5 @@
+import { createActionCreator } from '@intactile/redux-utils';
+
 // ------------------------------------
 // TYPES
 // ------------------------------------
@@ -13,21 +15,13 @@ export const CLEAR_HISTORY = 'UNDO_HISTORY@CLEAR';
 // ------------------------------------
 // Actions
 // ------------------------------------
-export function undo() {
-  return { type: UNDO };
-}
+export const undo = createActionCreator(UNDO);
 
-export function redo() {
-  return { type: REDO };
-}
+export const redo = createActionCreator(REDO);
 
-export function beginGroup() {
-  return { type: BEGIN_GROUP };
-}
-
-export function endGroup() {
-  return { type: END_GROUP };
-}
+export const beginGroup = createActionCreator(BEGIN_GROUP);
+export const endGroup = createActionCreator(END_GROUP);
+export const clearHistory = createActionCreator(CLEAR_HISTORY);
 
 export function addUndoItem(action, args) {
   return {
@@ -39,11 +33,6 @@ export function addUndoItem(action, args) {
   };
 }
 
-export function clearHistory() {
-  return {
-    type: CLEAR_HISTORY
-  };
-}
 export function group(...actions) {
   return {
     type: GROUP,
