@@ -36,7 +36,7 @@ import counter, {
   INCREMENT,
   DECREMENT,
   SET_COUNTER_VALUE
-} from './counterReduxModule';
+} from "./counterReduxModule";
 
 const revertingActions = {
   [INCREMENT]: () => decrement(),
@@ -56,12 +56,14 @@ If the the original action is not enough to create a reverting action you can pr
 ```javascript
 {
   action: (action, args) => revertingActionCreator(action.something, args.somethingElse),
-  createArgs: (state, action) => ({somethingElse: state.something})
+  createArgs: (state, action) => ({somethingElse: state.something}),
+  groupWithPrevious: (action, previousAction) => action.type === previousAction.type
 }
 ```
 
 the `createArgs` function runs _before_ the action happens and collects information needed to revert the action.
 you get this as a second argument for the reverting action creator.
+the optional `groupWithPrevious` function allows to group an action with the previous one.
 
 ### Middleware and reducer
 
@@ -100,8 +102,8 @@ const undoHistory = createUndoReducer({
 ### Undo/redo actions
 
 ```javascript
-import { actions, selectors } from '@intactile/redux-undo-redo';
-import { increment, decrement, setValue } from './counterReduxModule';
+import { actions, selectors } from "@intactile/redux-undo-redo";
+import { increment, decrement, setValue } from "./counterReduxModule";
 
 store.dispatch(increment()); // counter = 1
 store.dispatch(increment()); // counter = 2
@@ -137,12 +139,32 @@ store.dispatch(actions.undo()); // counter = 0
 store.dispatch(actions.redo()); // counter = 3
 ```
 
+### Group automatically successive actions
+
+It is possible to group an action with the previous one.
+The reverting action should be configured with a new function.
+
+```javascript
+[ADD_VALUE]: {
+  action: action => removeValue(action.payload),
+  groupWithPrevious: (action, previousAction) => action.type === previousAction.type
+}
+```
+
+If the previous action have the same type, the actions will be automatically grouped.
+
+```javascript
+store.dispatch(addValue(1)); // counter = 1
+store.dispatch(addValue(2)); // counter = 3
+store.dispatch(addValue(3)); // counter = 6
+
+store.dispatch(actions.undo()); // counter = 0
+store.dispatch(actions.redo()); // counter = 6
+```
+
 ### Pause/resume the undo/redo actions
 
 ```javascript
-import { actions, selectors } from '@intactile/redux-undo-redo';
-import { increment, decrement, setValue } from './counterReduxModule';
-
 store.dispatch(increment()); // counter = 1
 store.dispatch(increment()); // counter = 2
 store.dispatch(actions.pause());

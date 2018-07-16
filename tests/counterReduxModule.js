@@ -38,7 +38,6 @@ export const revertingActions = {
   },
   [REMOVE_VALUE]: {
     action: action => addValue(action.payload),
-    createArgs: state => ({ val: state.counter }),
     groupWithPrevious: (action, previousAction) => action.type === previousAction.type
   }
 };
