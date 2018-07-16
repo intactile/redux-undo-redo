@@ -44,19 +44,24 @@ function redoReducer(state) {
       };
 }
 
+const groupAction = (state, action) => {
+  const { groupLevel, groupCreated } = state;
+  const { payload: undoItem } = action;
+  return (groupLevel > 0 && groupCreated) || undoItem.isGroupedWithPrevious;
+};
+
 function createAddUndoItemReducer({ undoHistorySize = 50 }) {
   return function addUndoItemReducer(state, action) {
-    const { undoQueue, groupLevel, groupCreated } = state;
+    const { undoQueue, groupLevel } = state;
     const { payload: undoItem } = action;
     let newUndoQueue = undoQueue;
-    if (groupLevel > 0 && groupCreated) {
+    if (groupAction(state, action)) {
       const groupedAction = [undoItem, ...undoQueue[0]];
       newUndoQueue = [groupedAction, ...undoQueue.slice(1)];
     } else {
       newUndoQueue = [[undoItem], ...undoQueue];
     }
     newUndoQueue = limitArraySize(newUndoQueue, undoHistorySize);
-
     return {
       ...state,
       undoQueue: limitArraySize(newUndoQueue),

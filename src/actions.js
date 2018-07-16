@@ -27,12 +27,13 @@ export const clearHistory = createActionCreator(CLEAR_HISTORY);
 export const pause = createActionCreator(PAUSE);
 export const resume = createActionCreator(RESUME);
 
-export function addUndoItem(action, args) {
+export function addUndoItem(action, args, isGroupedWithPrevious) {
   return {
     type: ADD_UNDO_ITEM,
     payload: {
       action,
-      args
+      args,
+      isGroupedWithPrevious
     }
   };
 }

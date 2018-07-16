@@ -16,6 +16,12 @@ export default function createUndoMiddleware({ revertingActions }) {
     return argsFactory && argsFactory(state, action);
   }
 
+  function isGroupedWithPrevious(state, action) {
+    const undoItems = getUndoItems(state);
+    const groupWithPrevious = revertingActions[action.type].groupWithPrevious;
+    return undoItems && groupWithPrevious && groupWithPrevious(action, undoItems[0].action);
+  }
+
   function undo({ dispatch, state }) {
     if (canUndo(state)) {
       const undoItems = getUndoItems(state);
@@ -49,7 +55,8 @@ export default function createUndoMiddleware({ revertingActions }) {
 
   function defaultHandler({ dispatch, state, action }) {
     if (!acting && revertingActions[action.type]) {
-      dispatch(addUndoItem(action, getUndoArgs(state, action)));
+      const isGrouped = isGroupedWithPrevious(state, action);
+      dispatch(addUndoItem(action, getUndoArgs(state, action), isGrouped));
     }
   }
 

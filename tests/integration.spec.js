@@ -5,7 +5,9 @@ import counter, {
   increment,
   setValue,
   multiplyValue,
-  revertingActions
+  revertingActions,
+  addValue,
+  removeValue
 } from './counterReduxModule';
 
 describe('redux-undo-redo package', () => {
@@ -278,5 +280,43 @@ describe('redux-undo-redo package', () => {
     checkCounter(50);
     repeat100Times(() => store.dispatch(redo()));
     checkCounter(60);
+  });
+
+  it('should undo/redo a sequence of action grouped with the previous', () => {
+    store.dispatch(addValue(2));
+    store.dispatch(addValue(3));
+    store.dispatch(addValue(5));
+    checkCounter(10);
+
+    repeatFewTimes(() => {
+      undoThenCheckCounter(0);
+      redoThenCheckCounter(10);
+    });
+  });
+
+  it('should undo/redo several sequences of action grouped with the previous', () => {
+    store.dispatch(addValue(2));
+    store.dispatch(addValue(3));
+    store.dispatch(removeValue(1));
+    store.dispatch(removeValue(2));
+    store.dispatch(setValue(10));
+    store.dispatch(addValue(5));
+    store.dispatch(removeValue(4));
+    store.dispatch(removeValue(3));
+
+    checkCounter(8);
+
+    repeatFewTimes(() => {
+      undoThenCheckCounter(15); // undo (-3 - 4)
+      undoThenCheckCounter(10); // undo (+5)
+      undoThenCheckCounter(2); // undo (set 10)
+      undoThenCheckCounter(5); // undo (-2 - 1)
+      undoThenCheckCounter(0); // undo (+3 + 2)
+      redoThenCheckCounter(5); // redo (+3 + 2)
+      redoThenCheckCounter(2); // redo (-2 - 1)
+      redoThenCheckCounter(10); // redo (set 10)
+      redoThenCheckCounter(15); // redo (+5)
+      redoThenCheckCounter(8); // redo (-3 - 4)
+    });
   });
 });

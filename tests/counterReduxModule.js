@@ -1,30 +1,25 @@
+import { createActionCreator } from '@intactile/redux-utils';
+
 export const INCREMENT = 'INCREMENT';
 export const DECREMENT = 'DECREMENT';
 export const SET_VALUE = 'SET_VALUE';
 export const MULTIPLY_VALUE = 'MULTIPLY_VALUE';
 export const DIVIDE_VALUE = 'DIVIDE_VALUE';
+export const ADD_VALUE = 'ADD_VALUE';
+export const REMOVE_VALUE = 'REMOVE_VALUE';
 
-export const increment = () => ({
-  type: INCREMENT
-});
-export const decrement = () => ({
-  type: DECREMENT
-});
+export const increment = createActionCreator(INCREMENT);
+export const decrement = createActionCreator(DECREMENT);
 
-export const setValue = value => ({
-  type: SET_VALUE,
-  payload: value
-});
+export const setValue = createActionCreator(SET_VALUE);
 
-export const multiplyValue = value => ({
-  type: MULTIPLY_VALUE,
-  payload: value
-});
+export const multiplyValue = createActionCreator(MULTIPLY_VALUE);
 
-export const divideValue = value => ({
-  type: DIVIDE_VALUE,
-  payload: value
-});
+export const divideValue = createActionCreator(DIVIDE_VALUE);
+
+export const addValue = createActionCreator(ADD_VALUE);
+
+export const removeValue = createActionCreator(REMOVE_VALUE);
 
 export const revertingActions = {
   [INCREMENT]: () => decrement(),
@@ -36,6 +31,15 @@ export const revertingActions = {
   [MULTIPLY_VALUE]: {
     action: action => divideValue(action.payload),
     createArgs: state => ({ val: state.counter })
+  },
+  [ADD_VALUE]: {
+    action: action => removeValue(action.payload),
+    groupWithPrevious: (action, previousAction) => action.type === previousAction.type
+  },
+  [REMOVE_VALUE]: {
+    action: action => addValue(action.payload),
+    createArgs: state => ({ val: state.counter }),
+    groupWithPrevious: (action, previousAction) => action.type === previousAction.type
   }
 };
 
@@ -54,6 +58,12 @@ const caseReducers = {
   },
   [SET_VALUE](state, action) {
     return action.payload;
+  },
+  [ADD_VALUE](state, action) {
+    return state + action.payload;
+  },
+  [REMOVE_VALUE](state, action) {
+    return state - action.payload;
   }
 };
 export default function testReducer(state = 0, action) {
