@@ -19,6 +19,16 @@ describe('selectors', () => {
       };
       expect(canUndo(state)).toBe(false);
     });
+
+    it('return false if the undo queue is not empty but pause is true', () => {
+      const state = {
+        undoHistory: {
+          undoQueue: [1, 2, 3],
+          pause: true
+        }
+      };
+      expect(canUndo(state)).toBe(false);
+    });
   });
   describe('canRedo', () => {
     it('return true if the redo queue is not empty', () => {
@@ -34,6 +44,16 @@ describe('selectors', () => {
       const state = {
         undoHistory: {
           redoQueue: []
+        }
+      };
+      expect(canRedo(state)).toBe(false);
+    });
+
+    it('return false if the redo queue is not empty but pause is true', () => {
+      const state = {
+        undoHistory: {
+          redoQueue: [1, 2, 3],
+          pause: true
         }
       };
       expect(canRedo(state)).toBe(false);

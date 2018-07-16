@@ -1,4 +1,4 @@
-import { addUndoItem, undo, redo, beginGroup, clearHistory } from '../src/actions';
+import { addUndoItem, undo, redo, beginGroup, clearHistory, pause, resume } from '../src/actions';
 import createUndoReducer from '../src/createUndoReducer';
 
 describe('reducer', () => {
@@ -280,6 +280,39 @@ describe('reducer', () => {
 
     it('could be limited to 50', () => {
       checkMaxRedoHistoryLength(createUndoReducer({ redoHistorySize: 50 }), 50);
+    });
+  });
+  describe('pause and resume', () => {
+    it('indicates that undo/redo is temporarily impossible', () => {
+      const initialState = {
+        undoQueue: [[{ action: { type: 'ACTION1' } }]],
+        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]]
+      };
+      const expectedState = {
+        undoQueue: [[{ action: { type: 'ACTION1' } }]],
+        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        pause: true
+      };
+
+      const result = undoHistoryReducer(initialState, pause());
+
+      expect(result).toEqual(expectedState);
+    });
+    it('indicates that undo/redo is again possible', () => {
+      const initialState = {
+        undoQueue: [[{ action: { type: 'ACTION1' } }]],
+        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        pause: true
+      };
+      const expectedState = {
+        undoQueue: [[{ action: { type: 'ACTION1' } }]],
+        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        pause: undefined
+      };
+
+      const result = undoHistoryReducer(initialState, resume());
+
+      expect(result).toEqual(expectedState);
     });
   });
 });

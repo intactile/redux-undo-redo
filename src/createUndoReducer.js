@@ -1,6 +1,15 @@
 import { createModuleReducer } from '@intactile/redux-utils';
 
-import { UNDO, REDO, ADD_UNDO_ITEM, BEGIN_GROUP, END_GROUP, CLEAR_HISTORY } from './actions';
+import {
+  UNDO,
+  REDO,
+  ADD_UNDO_ITEM,
+  BEGIN_GROUP,
+  END_GROUP,
+  CLEAR_HISTORY,
+  PAUSE,
+  RESUME
+} from './actions';
 
 const initialState = {
   undoQueue: [],
@@ -76,6 +85,20 @@ function clearHistoryReducer() {
   return initialState;
 }
 
+function pauseReducer(state) {
+  return {
+    ...state,
+    pause: true
+  };
+}
+
+function resumeReducer(state) {
+  return {
+    ...state,
+    pause: undefined
+  };
+}
+
 export default function createUndoHistoryReducer(conf = {}) {
   return createModuleReducer(
     {
@@ -84,7 +107,9 @@ export default function createUndoHistoryReducer(conf = {}) {
       [ADD_UNDO_ITEM]: createAddUndoItemReducer(conf),
       [BEGIN_GROUP]: beginGroupReducer,
       [END_GROUP]: endGroupReducer,
-      [CLEAR_HISTORY]: clearHistoryReducer
+      [CLEAR_HISTORY]: clearHistoryReducer,
+      [PAUSE]: pauseReducer,
+      [RESUME]: resumeReducer
     },
     initialState
   );

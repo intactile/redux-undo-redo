@@ -9,7 +9,7 @@ import counter, {
 } from './counterReduxModule';
 
 describe('redux-undo-redo package', () => {
-  const { undo, redo, group, clearHistory } = actions;
+  const { undo, redo, group, clearHistory, pause, resume } = actions;
   const { canUndo, canRedo } = selectors;
   let store;
   beforeEach(() => {
@@ -214,6 +214,61 @@ describe('redux-undo-redo package', () => {
     store.dispatch(redo());
     checkCanUndo(true);
     checkCanRedo(false);
+  });
+
+  it('should tells if undo or redo are possible after pause and resume', () => {
+    checkCanUndo(false);
+    checkCanRedo(false);
+
+    store.dispatch(increment());
+    checkCanUndo(true);
+    checkCanRedo(false);
+
+    store.dispatch(increment());
+    checkCanUndo(true);
+    checkCanRedo(false);
+
+    store.dispatch(undo());
+    checkCanUndo(true);
+    checkCanRedo(true);
+
+    store.dispatch(pause());
+    checkCanUndo(false);
+    checkCanRedo(false);
+
+    store.dispatch(resume());
+    checkCanUndo(true);
+    checkCanRedo(true);
+  });
+
+  it('should pause and resume undo', () => {
+    store.dispatch(increment());
+    store.dispatch(increment());
+    checkCounter(2);
+
+    store.dispatch(pause());
+
+    undoThenCheckCounter(2);
+
+    store.dispatch(resume());
+
+    undoThenCheckCounter(1);
+  });
+
+  it('should pause redo', () => {
+    store.dispatch(increment());
+    store.dispatch(increment());
+    store.dispatch(undo());
+    store.dispatch(undo());
+    checkCounter(0);
+
+    store.dispatch(pause());
+
+    redoThenCheckCounter(0);
+
+    store.dispatch(resume());
+
+    redoThenCheckCounter(1);
   });
 
   it('should limit redo and undo history', () => {
