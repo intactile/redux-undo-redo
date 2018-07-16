@@ -251,6 +251,8 @@ describe('redux-undo-redo package', () => {
     store.dispatch(pause());
 
     undoThenCheckCounter(2);
+    undoThenCheckCounter(2);
+    undoThenCheckCounter(2);
 
     store.dispatch(resume());
 
@@ -266,6 +268,8 @@ describe('redux-undo-redo package', () => {
 
     store.dispatch(pause());
 
+    redoThenCheckCounter(0);
+    redoThenCheckCounter(0);
     redoThenCheckCounter(0);
 
     store.dispatch(resume());

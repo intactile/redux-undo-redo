@@ -22,8 +22,8 @@ const limitArraySize = (array, maxSize) =>
 
 function createUndoReducer({ redoHistorySize = 10 }) {
   return function undoReducer(state) {
-    const { undoQueue, redoQueue } = state;
-    return undoQueue.length === 0
+    const { undoQueue, redoQueue, pause } = state;
+    return undoQueue.length === 0 || pause === true
       ? state
       : {
           ...state,
@@ -34,8 +34,8 @@ function createUndoReducer({ redoHistorySize = 10 }) {
 }
 
 function redoReducer(state) {
-  const { undoQueue, redoQueue } = state;
-  return redoQueue.length === 0
+  const { undoQueue, redoQueue, pause } = state;
+  return redoQueue.length === 0 || pause === true
     ? state
     : {
         ...state,
