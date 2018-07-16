@@ -36,7 +36,7 @@ import counter, {
   INCREMENT,
   DECREMENT,
   SET_COUNTER_VALUE
-} from "./counterReduxModule";
+} from './counterReduxModule';
 
 const revertingActions = {
   [INCREMENT]: () => decrement(),
@@ -100,8 +100,8 @@ const undoHistory = createUndoReducer({
 ### Undo/redo actions
 
 ```javascript
-import { actions, selectors } from "@intactile/redux-undo-redo";
-import { increment, decrement, setValue } from "./counterReduxModule";
+import { actions, selectors } from '@intactile/redux-undo-redo';
+import { increment, decrement, setValue } from './counterReduxModule';
 
 store.dispatch(increment()); // counter = 1
 store.dispatch(increment()); // counter = 2
@@ -135,4 +135,23 @@ store.dispatch(
 
 store.dispatch(actions.undo()); // counter = 0
 store.dispatch(actions.redo()); // counter = 3
+```
+
+### Pause/resume the undo/redo actions
+
+```javascript
+import { actions, selectors } from '@intactile/redux-undo-redo';
+import { increment, decrement, setValue } from './counterReduxModule';
+
+store.dispatch(increment()); // counter = 1
+store.dispatch(increment()); // counter = 2
+store.dispatch(actions.pause());
+console.log(selectors.canUndo(store.getState())); // false
+
+store.dispatch(actions.undo()); // counter = 2
+
+store.dispatch(actions.resume());
+console.log(selectors.canRedo(store.getState())); // true
+
+store.dispatch(actions.undo()); // counter = 1
 ```
