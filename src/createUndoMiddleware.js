@@ -1,5 +1,5 @@
 import { UNDO, REDO, GROUP, beginGroup, endGroup, addUndoItem } from './actions';
-import { getUndoItems, getRedoItems } from './selectors';
+import { getUndoItems, getRedoItems, canUndo, canRedo } from './selectors';
 
 export default function createUndoMiddleware({ revertingActions }) {
   let acting = false;
@@ -17,8 +17,8 @@ export default function createUndoMiddleware({ revertingActions }) {
   }
 
   function undo({ dispatch, state }) {
-    const undoItems = getUndoItems(state);
-    if (undoItems) {
+    if (canUndo(state)) {
+      const undoItems = getUndoItems(state);
       acting = true;
       for (let index = 0; index < undoItems.length; index++) {
         const undoItem = undoItems[index];
@@ -29,8 +29,8 @@ export default function createUndoMiddleware({ revertingActions }) {
   }
 
   function redo({ dispatch, state }) {
-    const redoItems = getRedoItems(state);
-    if (redoItems) {
+    if (canRedo(state)) {
+      const redoItems = getRedoItems(state);
       acting = true;
       for (let index = redoItems.length - 1; index >= 0; index--) {
         const redoItem = redoItems[index];
