@@ -1,6 +1,6 @@
 {
   "name": "@intactile/redux-undo-redo",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "An undo redo package for redux",
   "main": "dist/index.js",
   "scripts": {
