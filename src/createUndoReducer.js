@@ -1,15 +1,6 @@
 import { createModuleReducer } from '@intactile/redux-utils';
 
-import {
-  UNDO,
-  REDO,
-  ADD_UNDO_ITEM,
-  BEGIN_GROUP,
-  END_GROUP,
-  CLEAR_HISTORY,
-  PAUSE,
-  RESUME
-} from './actions';
+import { UNDO, REDO, ADD_UNDO_ITEM, BEGIN_GROUP, END_GROUP, CLEAR_HISTORY } from './actions';
 
 const initialState = {
   undoQueue: [],
@@ -22,8 +13,8 @@ const limitArraySize = (array, maxSize) =>
 
 function createUndoReducer({ redoHistorySize = 10 }) {
   return function undoReducer(state) {
-    const { undoQueue, redoQueue, pause } = state;
-    return undoQueue.length === 0 || pause === true
+    const { undoQueue, redoQueue } = state;
+    return undoQueue.length === 0
       ? state
       : {
           ...state,
@@ -34,8 +25,8 @@ function createUndoReducer({ redoHistorySize = 10 }) {
 }
 
 function redoReducer(state) {
-  const { undoQueue, redoQueue, pause } = state;
-  return redoQueue.length === 0 || pause === true
+  const { undoQueue, redoQueue } = state;
+  return redoQueue.length === 0
     ? state
     : {
         ...state,
@@ -90,20 +81,6 @@ function clearHistoryReducer() {
   return initialState;
 }
 
-function pauseReducer(state) {
-  return {
-    ...state,
-    pause: true
-  };
-}
-
-function resumeReducer(state) {
-  return {
-    ...state,
-    pause: undefined
-  };
-}
-
 export default function createUndoHistoryReducer(conf = {}) {
   return createModuleReducer(
     {
@@ -112,9 +89,7 @@ export default function createUndoHistoryReducer(conf = {}) {
       [ADD_UNDO_ITEM]: createAddUndoItemReducer(conf),
       [BEGIN_GROUP]: beginGroupReducer,
       [END_GROUP]: endGroupReducer,
-      [CLEAR_HISTORY]: clearHistoryReducer,
-      [PAUSE]: pauseReducer,
-      [RESUME]: resumeReducer
+      [CLEAR_HISTORY]: clearHistoryReducer
     },
     initialState
   );

@@ -161,19 +161,3 @@ store.dispatch(addValue(3)); // counter = 6
 store.dispatch(actions.undo()); // counter = 0
 store.dispatch(actions.redo()); // counter = 6
 ```
-
-### Pause/resume the undo/redo actions
-
-```javascript
-store.dispatch(increment()); // counter = 1
-store.dispatch(increment()); // counter = 2
-store.dispatch(actions.pause());
-console.log(selectors.canUndo(store.getState())); // false
-
-store.dispatch(actions.undo()); // counter = 2
-
-store.dispatch(actions.resume());
-console.log(selectors.canRedo(store.getState())); // true
-
-store.dispatch(actions.undo()); // counter = 1
-```
