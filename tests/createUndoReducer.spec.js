@@ -1,7 +1,21 @@
-import { addUndoItem, undo, redo, beginGroup, clearHistory, rewriteHistory } from '../src/actions';
+import {
+  addUndoItem,
+  undo,
+  redo,
+  beginGroup,
+  endGroup,
+  clearHistory,
+  rewriteHistory
+} from '../src/actions';
 import createUndoReducer from '../src/createUndoReducer';
 
 describe('reducer', () => {
+  const i0 = { action: { type: 'ACTION0' } };
+  const i1 = { action: { type: 'ACTION1' } };
+  const i2 = { action: { type: 'ACTION2' } };
+  const i3 = { action: { type: 'ACTION3' } };
+  const i4 = { action: { type: 'ACTION4' } };
+
   const undoHistoryReducer = createUndoReducer();
   describe('addUndoItem', () => {
     it('adds items to the undo queue in reverse order', () => {
@@ -11,11 +25,7 @@ describe('reducer', () => {
       };
       const undoableActions = [{ type: 'ACTION1' }, { type: 'ACTION2' }, { type: 'ACTION3' }];
       const expectedState = {
-        undoQueue: [
-          [{ action: { type: 'ACTION3' } }],
-          [{ action: { type: 'ACTION2' } }],
-          [{ action: { type: 'ACTION1' } }]
-        ],
+        undoQueue: [[i3], [i2], [i1]],
         redoQueue: []
       };
 
@@ -29,12 +39,12 @@ describe('reducer', () => {
 
     it('resets the redo queue', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION3' } }]]
+        undoQueue: [[i1]],
+        redoQueue: [[i2], [i3]]
       };
       const action = { type: 'ACTION4' };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION4' } }], [{ action: { type: 'ACTION1' } }]],
+        undoQueue: [[i4], [i1]],
         redoQueue: []
       };
 
@@ -45,14 +55,14 @@ describe('reducer', () => {
 
     it('adds items to a new group if the group is not created', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION3' } }]],
+        undoQueue: [[i1]],
+        redoQueue: [[i2], [i3]],
         groupLevel: 2,
         groupCreated: false
       };
       const action = { type: 'ACTION4' };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION4' } }], [{ action: { type: 'ACTION1' } }]],
+        undoQueue: [[i4], [i1]],
         redoQueue: [],
         groupLevel: 2,
         groupCreated: true
@@ -65,14 +75,14 @@ describe('reducer', () => {
 
     it('adds items to the first group if the group is created', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION3' } }]],
+        undoQueue: [[i1]],
+        redoQueue: [[i2], [i3]],
         groupLevel: 1,
         groupCreated: true
       };
       const action = { type: 'ACTION4' };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION4' } }, { action: { type: 'ACTION1' } }]],
+        undoQueue: [[i4, i1]],
         redoQueue: [],
         groupLevel: 1,
         groupCreated: true
@@ -87,16 +97,12 @@ describe('reducer', () => {
   describe('undo', () => {
     it('removes the first item in the undo queue', () => {
       const initialState = {
-        undoQueue: [
-          [{ action: { type: 'ACTION3' } }],
-          [{ action: { type: 'ACTION2' } }],
-          [{ action: { type: 'ACTION1' } }]
-        ],
+        undoQueue: [[i3], [i2], [i1]],
         redoQueue: []
       };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION3' } }]]
+        undoQueue: [[i2], [i1]],
+        redoQueue: [[i3]]
       };
 
       const result = undoHistoryReducer(initialState, undo());
@@ -106,12 +112,12 @@ describe('reducer', () => {
 
     it('adds the first item in the undo queue to the redo queue', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION3' } }]]
+        undoQueue: [[i2], [i1]],
+        redoQueue: [[i3]]
       };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION3' } }]]
+        undoQueue: [[i1]],
+        redoQueue: [[i2], [i3]]
       };
 
       const result = undoHistoryReducer(initialState, undo());
@@ -122,7 +128,7 @@ describe('reducer', () => {
     it('doesnt change redo queue if undo queue is empty', () => {
       const initialState = {
         undoQueue: [],
-        redoQueue: [{ action: { type: 'ACTION2' } }, { action: { type: 'ACTION3' } }]
+        redoQueue: [i2, i3]
       };
 
       const result = undoHistoryReducer(initialState, undo());
@@ -135,15 +141,11 @@ describe('reducer', () => {
     it('removes the first item in the redo queue', () => {
       const initialState = {
         undoQueue: [],
-        redoQueue: [
-          [{ action: { type: 'ACTION1' } }],
-          [{ action: { type: 'ACTION3' } }],
-          [{ action: { type: 'ACTION2' } }]
-        ]
+        redoQueue: [[i1], [i3], [i2]]
       };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION3' } }], [{ action: { type: 'ACTION2' } }]]
+        undoQueue: [[i1]],
+        redoQueue: [[i3], [i2]]
       };
 
       const result = undoHistoryReducer(initialState, redo());
@@ -153,12 +155,12 @@ describe('reducer', () => {
 
     it('adds the first item in the redo queue to the undo queue', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION3' } }], [{ action: { type: 'ACTION2' } }]]
+        undoQueue: [[i1]],
+        redoQueue: [[i3], [i2]]
       };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION3' } }], [{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION2' } }]]
+        undoQueue: [[i3], [i1]],
+        redoQueue: [[i2]]
       };
 
       const result = undoHistoryReducer(initialState, redo());
@@ -168,7 +170,7 @@ describe('reducer', () => {
 
     it('doesnt change undo queue if redo queue is empty', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION2' } }], [{ action: { type: 'ACTION3' } }]],
+        undoQueue: [[i2], [i3]],
         redoQueue: []
       };
 
@@ -181,9 +183,10 @@ describe('reducer', () => {
   describe('beginGroup', () => {
     it('increment the group level and set groupCreated to false', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION3' } }]],
-        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
-        groupLevel: 0
+        undoQueue: [[i3]],
+        redoQueue: [[i1], [i2]],
+        groupLevel: 0,
+        groupCreated: false
       };
       const expectedState = {
         ...initialState,
@@ -196,11 +199,12 @@ describe('reducer', () => {
       expect(result).toEqual(expectedState);
     });
 
-    it('increment the group level and set groupCreated to true if the level is > 0', () => {
+    it('increment the group level if the level is > 0', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION3' } }]],
-        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
-        groupLevel: 3
+        undoQueue: [[i3]],
+        redoQueue: [[i1], [i2]],
+        groupLevel: 3,
+        groupCreated: true
       };
       const expectedState = {
         ...initialState,
@@ -214,23 +218,79 @@ describe('reducer', () => {
     });
   });
 
+  describe('endGroup', () => {
+    it('decrement the group level and set groupCreated to false il level === 1', () => {
+      const initialState = {
+        undoQueue: [[i3]],
+        redoQueue: [[i1], [i2]],
+        groupLevel: 1,
+        groupCreated: true
+      };
+      const expectedState = {
+        ...initialState,
+        groupLevel: 0,
+        groupCreated: false
+      };
+
+      const result = undoHistoryReducer(initialState, endGroup());
+
+      expect(result).toEqual(expectedState);
+    });
+
+    it('decrement the group level and keep groupCreated to false', () => {
+      const initialState = {
+        undoQueue: [[i3]],
+        redoQueue: [[i1], [i2]],
+        groupLevel: 3,
+        groupCreated: false
+      };
+      const expectedState = {
+        ...initialState,
+        groupLevel: 2,
+        groupCreated: false
+      };
+
+      const result = undoHistoryReducer(initialState, endGroup());
+
+      expect(result).toEqual(expectedState);
+    });
+
+    it('decrement the group level and keep groupCreated to true', () => {
+      const initialState = {
+        undoQueue: [[i3]],
+        redoQueue: [[i1], [i2]],
+        groupLevel: 3,
+        groupCreated: true
+      };
+      const expectedState = {
+        ...initialState,
+        groupLevel: 2,
+        groupCreated: true
+      };
+
+      const result = undoHistoryReducer(initialState, endGroup());
+
+      expect(result).toEqual(expectedState);
+    });
+  });
+
   describe('rewriteHistory', () => {
     it('overwrite with the supplied state', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION3' } }]],
-        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        undoQueue: [[i3]],
+        redoQueue: [[i1], [i2]],
         groupLevel: 0
       };
       const expectedState = {
-        undoQueue: [[{ action: { type: 'ACTION0' } }]],
-        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        undoQueue: [[i0]],
+        redoQueue: [[i1], [i2]],
         groupLevel: 1
       };
 
       const result = undoHistoryReducer(
         initialState,
         rewriteHistory({
-          undoQueue: [[{ action: { type: 'ACTION0' } }]],
+          undoQueue: [[i0]],
           groupLevel: 1
         })
       );
@@ -242,8 +302,8 @@ describe('reducer', () => {
   describe('clearHistory', () => {
     it('reset to a blank state', () => {
       const initialState = {
-        undoQueue: [[{ action: { type: 'ACTION1' } }]],
-        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]]
+        undoQueue: [[i1]],
+        redoQueue: [[i1], [i2]]
       };
       const expectedState = {
         undoQueue: [],

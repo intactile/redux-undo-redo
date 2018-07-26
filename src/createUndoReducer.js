@@ -73,15 +73,15 @@ function createAddUndoItemReducer({ undoHistorySize = 50 }) {
 function beginGroupReducer(state) {
   return {
     ...state,
-    groupLevel: state.groupLevel + 1,
-    groupCreated: state.groupLevel > 0
+    groupLevel: state.groupLevel + 1
   };
 }
 
 function endGroupReducer(state) {
   return {
     ...state,
-    groupLevel: state.groupLevel - 1
+    groupLevel: state.groupLevel - 1,
+    groupCreated: state.groupCreated && state.groupLevel > 1
   };
 }
 

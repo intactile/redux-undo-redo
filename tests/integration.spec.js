@@ -114,6 +114,27 @@ describe('redux-undo-redo package', () => {
     redoThenCheckCounter(5);
   });
 
+  it('should support empty groups', () => {
+    store.dispatch(increment());
+    store.dispatch(group());
+    store.dispatch(
+      group(dispatch => {
+        dispatch(group());
+        dispatch(group(increment(), increment()));
+        dispatch(group(increment(), increment()));
+        dispatch(group());
+        dispatch(increment());
+      })
+    );
+    checkCounter(6);
+
+    store.dispatch(undo());
+    checkCounter(1);
+
+    store.dispatch(redo());
+    checkCounter(6);
+  });
+
   it('should let undo and redo nested group of actions', () => {
     store.dispatch(increment());
     store.dispatch(
@@ -126,6 +147,33 @@ describe('redux-undo-redo package', () => {
           })
         );
         dispatch(increment());
+      })
+    );
+    checkCounter(5);
+
+    store.dispatch(undo());
+    checkCounter(1);
+
+    store.dispatch(redo());
+    checkCounter(5);
+  });
+
+  it('should let undo and redo nested group of actions2', () => {
+    store.dispatch(increment());
+    store.dispatch(
+      group(dispatch => {
+        dispatch(
+          group(dispatch2 => {
+            dispatch2(increment());
+            dispatch2(increment());
+          })
+        );
+        dispatch(
+          group(dispatch2 => {
+            dispatch2(increment());
+            dispatch2(increment());
+          })
+        );
       })
     );
     checkCounter(5);
