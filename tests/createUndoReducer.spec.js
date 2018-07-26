@@ -1,4 +1,4 @@
-import { addUndoItem, undo, redo, beginGroup, clearHistory } from '../src/actions';
+import { addUndoItem, undo, redo, beginGroup, clearHistory, rewriteHistory } from '../src/actions';
 import createUndoReducer from '../src/createUndoReducer';
 
 describe('reducer', () => {
@@ -209,6 +209,31 @@ describe('reducer', () => {
       };
 
       const result = undoHistoryReducer(initialState, beginGroup());
+
+      expect(result).toEqual(expectedState);
+    });
+  });
+
+  describe('rewriteHistory', () => {
+    it('overwrite with the supplied state', () => {
+      const initialState = {
+        undoQueue: [[{ action: { type: 'ACTION3' } }]],
+        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        groupLevel: 0
+      };
+      const expectedState = {
+        undoQueue: [[{ action: { type: 'ACTION0' } }]],
+        redoQueue: [[{ action: { type: 'ACTION1' } }], [{ action: { type: 'ACTION2' } }]],
+        groupLevel: 1
+      };
+
+      const result = undoHistoryReducer(
+        initialState,
+        rewriteHistory({
+          undoQueue: [[{ action: { type: 'ACTION0' } }]],
+          groupLevel: 1
+        })
+      );
 
       expect(result).toEqual(expectedState);
     });

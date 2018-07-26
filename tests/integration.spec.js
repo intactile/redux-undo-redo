@@ -11,8 +11,8 @@ import counter, {
 } from './counterReduxModule';
 
 describe('redux-undo-redo package', () => {
-  const { undo, redo, group, clearHistory } = actions;
-  const { canUndo, canRedo } = selectors;
+  const { undo, redo, group, clearHistory, rewriteHistory } = actions;
+  const { canUndo, canRedo, getUndoQueue } = selectors;
   let store;
   beforeEach(() => {
     const initialState = {};
@@ -262,6 +262,31 @@ describe('redux-undo-redo package', () => {
       redoThenCheckCounter(10); // redo (set 10)
       redoThenCheckCounter(15); // redo (+5)
       redoThenCheckCounter(8); // redo (-3 - 4)
+    });
+  });
+
+  it('should rewriteHistory', () => {
+    store.dispatch(increment());
+    store.dispatch(increment());
+    store.dispatch(increment());
+    checkCounter(3);
+
+    store.dispatch((dispatch, getState) => {
+      const state = getState();
+      const undoQueue = getUndoQueue(state);
+      store.dispatch(
+        rewriteHistory({
+          undoQueue: [[...undoQueue[0], ...undoQueue[1], ...undoQueue[2]]],
+          redoQueue: [[...undoQueue[0]]]
+        })
+      );
+    });
+
+    repeatFewTimes(() => {
+      redoThenCheckCounter(4);
+      undoThenCheckCounter(3);
+      undoThenCheckCounter(0);
+      redoThenCheckCounter(3);
     });
   });
 });
